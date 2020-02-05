@@ -10,6 +10,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
+        val jsonFile = assets.open("timetable.json")
+        // TODO: Добавить код для чтения InputStream в строку
     }
 }
