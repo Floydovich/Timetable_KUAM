@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.timetable_kuam.model.Class_
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.timetable_kuam.model.ClassItem
+import kotlinx.android.synthetic.main.day_fragment.*
 
-class DayFragment(val classes: List<Class_>?) : Fragment() {
+class DayFragment(private val classes: List<ClassItem>?) : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -19,5 +21,8 @@ class DayFragment(val classes: List<Class_>?) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = ClassesAdapter(classes)
     }
 }
