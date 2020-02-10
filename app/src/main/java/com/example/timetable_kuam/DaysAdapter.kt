@@ -5,7 +5,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.timetable_kuam.model.ClassItem
 
-class DaysAdapter(classes: ArrayList<ClassItem>, fa: FragmentActivity) : FragmentStateAdapter(fa) {
+class DaysAdapter(classes: List<ClassItem>, fa: FragmentActivity) : FragmentStateAdapter(fa) {
 
     //  Группирует классы по дням и помещает в Map, например
     //  {0=[ClassItem, ClassItem, ClassItem, ClassItem], 1=[...], ...}

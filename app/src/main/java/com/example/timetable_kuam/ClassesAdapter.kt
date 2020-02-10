@@ -23,7 +23,7 @@ class ClassesAdapter(
         val classItem = classes?.get(position)
 
         if (classItem != null) {
-            holder.view.name.text = classItem.name
+            holder.view.name.setText(classItem.name)
             holder.view.prof.text = classItem.prof
             holder.view.place.text = classItem.place
 
