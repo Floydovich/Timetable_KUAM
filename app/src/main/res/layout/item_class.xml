@@ -42,11 +42,14 @@
             android:layout_height="wrap_content"
             android:clickable="false"
             android:duplicateParentState="false"
-            android:editable="false"
             android:ems="10"
+            android:focusable="auto"
             android:gravity="start|top"
-            android:inputType="textMultiLine"
-            android:textSize="12sp" />
+            android:linksClickable="false"
+            android:longClickable="false"
+            android:saveEnabled="false"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/prof"
