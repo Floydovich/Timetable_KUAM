@@ -1,6 +1,7 @@
 package com.example.timetable_kuam
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -12,17 +13,14 @@ import kotlinx.android.synthetic.main.content_group_selection.*
 
 class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
-    private val specs = listOf<String>("IS", "INF")
-
-    private val groups = listOf<List<String>>(
-        listOf("IS11", "IS42"),
-        listOf("INF22", "INF31")
-    )
+    private lateinit var specs: Array<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_group_selection)
         setSupportActionBar(toolbar)
+
+        specs = assets.list("json_files")!!
 
         val adapterSpecs = ArrayAdapter(this,
             android.R.layout.simple_spinner_item,
@@ -42,10 +40,13 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-        val adapterGroups = ArrayAdapter<String>(parent.context,
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        val groups = assets.list("json_files/${specs[position]}")
+
+        val adapterGroups = ArrayAdapter<String>(this,
             android.R.layout.simple_spinner_item,
-            groups[position])
+            groups?.map { fileName -> fileName.dropLast(5) } !!
+        )
 
         adapterGroups.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerGroups.adapter = adapterGroups
