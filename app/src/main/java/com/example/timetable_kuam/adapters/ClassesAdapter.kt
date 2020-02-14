@@ -1,8 +1,9 @@
-package com.example.timetable_kuam
+package com.example.timetable_kuam.adapters
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.timetable_kuam.R
 import com.example.timetable_kuam.model.ClassItem
 import com.example.timetable_kuam.utils.TimeUtils
 import com.example.timetable_kuam.utils.inflate
@@ -23,7 +24,7 @@ class ClassesAdapter(
         val classItem = classes?.get(position)
 
         if (classItem != null) {
-            holder.view.name.setText(classItem.name)
+            holder.view.name.text = classItem.name
             holder.view.prof.text = classItem.prof
             holder.view.place.text = classItem.place
 

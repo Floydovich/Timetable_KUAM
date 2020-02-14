@@ -2,16 +2,16 @@
     {
         "day": 0,
         "id": 0,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 0,
         "id": 1,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 0,
@@ -30,37 +30,37 @@
     {
         "day": 0,
         "id": 4,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 0,
         "id": 5,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 1,
         "id": 0,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 1,
         "id": 1,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 1,
         "id": 2,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 1,
@@ -73,7 +73,7 @@
         "day": 1,
         "id": 4,
         "name": "Дипломное проектирование",
-        "prof": "---",
+        "prof": " ",
         "place": "Библитека"
     },
     {
@@ -86,44 +86,44 @@
     {
         "day": 2,
         "id": 0,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 2,
         "id": 1,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 2,
         "id": 2,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 2,
         "id": 3,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 2,
         "id": 4,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 2,
         "id": 5,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 3,
@@ -135,37 +135,37 @@
     {
         "day": 3,
         "id": 1,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 3,
         "id": 2,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 3,
         "id": 3,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 3,
         "id": 4,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 3,
         "id": 5,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 4,
@@ -178,8 +178,8 @@
         "day": 4,
         "id": 1,
         "name": "Кураторский час",
-        "prof": "---",
-        "place": "---"
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 4,
@@ -191,22 +191,22 @@
     {
         "day": 4,
         "id": 3,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 4,
         "id": 4,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     },
     {
         "day": 4,
         "id": 5,
-        "name": "---",
-        "prof": "---",
-        "place": "---"
+        "name": " ",
+        "prof": " ",
+        "place": " "
     }
 ]

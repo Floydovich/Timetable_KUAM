@@ -3,6 +3,7 @@ package com.example.timetable_kuam
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.example.timetable_kuam.adapters.DaysAdapter
 import com.example.timetable_kuam.model.ClassItem
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
@@ -18,8 +19,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Берёт путь к файлу из интента переданного из Selection Group Activity
+        val filePath = intent.getStringExtra("FILE_PATH")
+        Log.d("SELECTED PATH IN MAIN", filePath)
+
         // Парсит JSON в классы и отправляет их адаптеру
-        val daysAdapter = DaysAdapter(parseClasses("timetable.json"), this)
+        val daysAdapter = DaysAdapter(parseClasses(filePath), this)
+
         viewPager.adapter = daysAdapter
 
         // Создаёт инстанс календаря чтобы брать оттуда день недели и прочее время
@@ -31,14 +37,16 @@ class MainActivity : AppCompatActivity() {
         attachTabs()
     }
 
+    // Парсим JSON строку в лист классов
     private fun parseClasses(jsonFile: String) = Gson()
         .fromJson<List<ClassItem>>(
             // Открывает файл и переводит его в строку
-            IOUtil.toString(assets.open(jsonFile), "UTF-8"),
+            IOUtil.toString(assets.open(jsonFile)),
             // Тут задаётся тип листа, куда будет парсится JSON
             object : TypeToken<List<ClassItem>>() {}.type
         )
 
+    // Присоединяем вкладки
     private fun attachTabs() {
         TabLayoutMediator(tabs, viewPager) {tab, position ->
             tab.text = when(position) {

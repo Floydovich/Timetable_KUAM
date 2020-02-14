@@ -30,4 +30,14 @@
         app:layout_constraintEnd_toEndOf="@+id/spinnerSpecs"
         app:layout_constraintStart_toStartOf="@+id/spinnerSpecs"
         app:layout_constraintTop_toBottomOf="@+id/spinnerSpecs" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="Посмотреть"
+        app:layout_constraintEnd_toEndOf="@+id/spinnerGroups"
+        app:layout_constraintStart_toStartOf="@+id/spinnerGroups"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerGroups" />
 </androidx.constraintlayout.widget.ConstraintLayout>
