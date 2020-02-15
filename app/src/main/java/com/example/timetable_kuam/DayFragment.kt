@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.timetable_kuam.adapters.ClassesAdapter
-import com.example.timetable_kuam.model.ClassItem
+import com.example.timetable_kuam.utils.*
 import kotlinx.android.synthetic.main.day_fragment.*
 
-class DayFragment(private val classes: List<ClassItem>?) : Fragment() {
+class DayFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -21,10 +21,22 @@ class DayFragment(private val classes: List<ClassItem>?) : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter =
-            ClassesAdapter(classes)
+        recyclerView.adapter = ClassesAdapter(
+            arguments?.getInt(ARG_DAY),
+            arguments?.getString(ARG_JSON))
+    }
+
+    companion object {
+        fun newInstance(position: Int, jsonTable: String): DayFragment {
+            val fragment = DayFragment()
+            val arguments = Bundle()
+
+            arguments.putInt(ARG_DAY, position)
+            arguments.putString(ARG_JSON, jsonTable)
+            fragment.arguments = arguments
+
+            return fragment
+        }
     }
 }
