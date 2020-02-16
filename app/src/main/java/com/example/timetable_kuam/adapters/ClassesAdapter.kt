@@ -1,5 +1,6 @@
 package com.example.timetable_kuam.adapters
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -14,10 +15,11 @@ import kotlinx.android.synthetic.main.item_class.view.*
 class ClassesAdapter(val day: Int?, private val jsonTable: String?)
     : RecyclerView.Adapter<ClassesAdapter.ViewHolder>() {
 
-    private val timetable = Gson().fromJson<List<ClassItem>>(jsonTable,
-        object : TypeToken<List<ClassItem>>() {} .type)
-
-    private val dayClassesSet = timetable.filter { it.day == day }
+    private val timetable = Gson().fromJson<List<ClassItem>>(
+        jsonTable,
+        object : TypeToken<List<ClassItem>>() {} .type
+    )
+    private var dayClassesSet = timetable.filter { it.day == day }
 
     override fun getItemCount() = dayClassesSet.size
 

@@ -8,6 +8,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
+import com.example.timetable_kuam.utils.FILE_PATH
 
 import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.content_group_selection.*
@@ -22,21 +23,18 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
         setContentView(R.layout.activity_group_selection)
         setSupportActionBar(toolbar)
 
-        specs = assets.list("json_files")!!
+        specs = assets.list("json_files") as Array<String>
 
         spinnerGroups.adapter = setSpinnerAdapter(groups)
         spinnerSpecs.adapter = setSpinnerAdapter(specs)
-        // Создаём листенер для адаптера спиннера специальностей
+
         spinnerSpecs.onItemSelectedListener = this
 
-        // Прописываем действие для клика по кнопке
+        // Нажатие по кнопке передаёт путь до JSON файла и переходит к расписанию
         button.setOnClickListener {
-            // Создаём интент для перехода в другую активити
             val intent = Intent(this, MainActivity::class.java)
-            // Вкладываем путь до файла выбранной группы
-            intent.putExtra("FILE_PATH",
+            intent.putExtra(FILE_PATH,
                 "json_files/${spinnerSpecs.selectedItem}/${spinnerGroups.selectedItem}.json")
-            // Переходим в активити с расписанием
             startActivity(intent)
         }
     }
@@ -54,7 +52,7 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
 
     // При выборе специальности берёт список групп из папки специальности
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        groups = assets.list("json_files/${specs[position]}")!!
+        groups = assets.list("json_files/${specs[position]}") as Array<String>
 
         // Устанавливает список групп с убранным расширением в конце
         spinnerGroups.adapter = setSpinnerAdapter(groups.map { fileName ->

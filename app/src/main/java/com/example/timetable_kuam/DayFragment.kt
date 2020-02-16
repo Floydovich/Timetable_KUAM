@@ -24,7 +24,8 @@ class DayFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = ClassesAdapter(
             arguments?.getInt(ARG_DAY),
-            arguments?.getString(ARG_JSON))
+            arguments?.getString(ARG_JSON)
+        )
     }
 
     companion object {

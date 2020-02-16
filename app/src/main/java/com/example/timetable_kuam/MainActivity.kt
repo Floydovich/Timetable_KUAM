@@ -1,9 +1,12 @@
 package com.example.timetable_kuam
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.example.timetable_kuam.adapters.DaysAdapter
+import com.example.timetable_kuam.utils.ARG_JSON
+import com.example.timetable_kuam.utils.FILE_PATH
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import org.apache.commons.io.IOUtil
@@ -16,19 +19,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val daysAdapter = DaysAdapter(IOUtil.toString(assets.open("timetable.json")), this)
+        val jsonFile = intent.getStringExtra(FILE_PATH)
 
-        viewPager.adapter = daysAdapter
+        if (jsonFile != null) {
+            val daysAdapter = DaysAdapter(IOUtil.toString(assets.open(jsonFile)), this)
 
-        val calendar = Calendar.getInstance()
-        val today = calendar.get(Calendar.DAY_OF_WEEK) - 2 // Суб = индекс 7
-        // Устанавливает страницу на текущий день недели
-        viewPager.currentItem = today
+            viewPager.adapter = daysAdapter
 
-        attachTabs()
+            val calendar = Calendar.getInstance()
+            var today = calendar.get(Calendar.DAY_OF_WEEK) - 2
+
+            if (today == -1) today = 6 // Ставит на воскресенье
+
+            viewPager.currentItem = today
+
+            attachTabs()
+
+        } else {
+            startActivity(Intent(this, GroupSelectionActivity::class.java))
+        }
     }
 
-    // Присоединяем вкладки
     private fun attachTabs() {
         TabLayoutMediator(tabs, viewPager) {tab, position ->
             tab.text = when(position) {
@@ -38,7 +49,8 @@ class MainActivity : AppCompatActivity() {
                 3 -> "чт"
                 4 -> "пт"
                 5 -> "сб"
-                else -> "вс"
+                6 -> "вс"
+                else -> "Empty tab."
             }
         }.attach()
     }
