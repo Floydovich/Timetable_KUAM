@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import com.example.timetable_kuam.adapters.DaysAdapter
 import com.example.timetable_kuam.model.ClassItem
-import com.example.timetable_kuam.utils.FILE_PATH
+import com.example.timetable_kuam.utils.PATH_SPEC_GROUP
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -20,7 +20,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val timetable = parseJson(intent.getStringExtra(FILE_PATH)!!)
+        val filePath = intent.getStringExtra(PATH_SPEC_GROUP)
+
+        val timetable = parseJson(filePath)
 
         val daysAdapter = DaysAdapter(timetable, this)
         viewPager.adapter = daysAdapter
