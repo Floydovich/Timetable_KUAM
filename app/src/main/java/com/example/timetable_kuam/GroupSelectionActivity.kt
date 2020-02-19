@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import com.example.timetable_kuam.utils.FILE_PATH
 
@@ -20,6 +19,7 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_group_selection)
         setSupportActionBar(toolbar)
 
@@ -30,7 +30,6 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
 
         spinnerSpecs.onItemSelectedListener = this
 
-        // Нажатие по кнопке передаёт путь до JSON файла и переходит к расписанию
         button.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra(FILE_PATH,
@@ -39,7 +38,6 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
         }
     }
 
-    // Сразу устанавливает адаптер для спиннера и два лэйаута: для спиннера и его пунктов
     private fun setSpinnerAdapter(itemsArray: Array<String>) = ArrayAdapter(this,
             android.R.layout.simple_spinner_item,
             itemsArray).also { adapter ->
@@ -47,15 +45,13 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
         }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
-        Log.d("LISTENER NOT SELECTED", "Nothing is selected.")
+        Log.d("GROUP ACT ON NOTHING", "Nothing is selected.")
     }
 
-    // При выборе специальности берёт список групп из папки специальности
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         groups = assets.list("json_files/${specs[position]}") as Array<String>
 
-        // Устанавливает список групп с убранным расширением в конце
         spinnerGroups.adapter = setSpinnerAdapter(groups.map { fileName ->
-            fileName.dropLast(5) } .toTypedArray())
+            fileName.dropLast(5) }.toTypedArray())  // убирает расширение
     }
 }

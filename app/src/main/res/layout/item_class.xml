@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="110dp"
     android:orientation="horizontal">
 
     <FrameLayout
         android:layout_width="70dp"
         android:layout_height="match_parent"
         android:paddingLeft="8dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="16dp">
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp">
 
         <TextView
             android:id="@+id/startTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text="TextView"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <View
             android:id="@+id/view"
@@ -28,7 +30,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:text="TextView" />
+            android:text="TextView"
+            android:textSize="18sp" />
     </FrameLayout>
 
     <LinearLayout
@@ -58,7 +61,8 @@
             android:id="@+id/place"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:text="TextView"
+            android:textSize="18sp" />
 
     </LinearLayout>
 

@@ -1,15 +1,18 @@
 package com.example.timetable_kuam
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.timetable_kuam.adapters.ClassesAdapter
-import com.example.timetable_kuam.utils.*
+import com.example.timetable_kuam.model.ClassItem
+import com.example.timetable_kuam.utils.ARG_TABLE
 import kotlinx.android.synthetic.main.day_fragment.*
 
+@Suppress("UNCHECKED_CAST")
 class DayFragment : Fragment() {
 
     override fun onCreateView(
@@ -21,20 +24,18 @@ class DayFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val timetable = arguments?.getParcelableArray(ARG_TABLE)
+
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = ClassesAdapter(
-            arguments?.getInt(ARG_DAY),
-            arguments?.getString(ARG_JSON)
-        )
+        recyclerView.adapter = ClassesAdapter(timetable as Array<ClassItem>)
     }
 
     companion object {
-        fun newInstance(position: Int, jsonTable: String): DayFragment {
+        fun newInstance(timetable: List<ClassItem>): DayFragment {
             val fragment = DayFragment()
             val arguments = Bundle()
 
-            arguments.putInt(ARG_DAY, position)
-            arguments.putString(ARG_JSON, jsonTable)
+            arguments.putParcelableArray(ARG_TABLE, timetable.toTypedArray())
             fragment.arguments = arguments
 
             return fragment

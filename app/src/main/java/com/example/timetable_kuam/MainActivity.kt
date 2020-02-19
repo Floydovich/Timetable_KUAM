@@ -1,13 +1,14 @@
 package com.example.timetable_kuam
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.example.timetable_kuam.adapters.DaysAdapter
-import com.example.timetable_kuam.utils.ARG_JSON
+import com.example.timetable_kuam.model.ClassItem
 import com.example.timetable_kuam.utils.FILE_PATH
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
 import org.apache.commons.io.IOUtil
 import java.util.*
@@ -19,25 +20,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val jsonFile = intent.getStringExtra(FILE_PATH)
+        val timetable = parseJson(intent.getStringExtra(FILE_PATH)!!)
 
-        if (jsonFile != null) {
-            val daysAdapter = DaysAdapter(IOUtil.toString(assets.open(jsonFile)), this)
+        val daysAdapter = DaysAdapter(timetable, this)
+        viewPager.adapter = daysAdapter
+        viewPager.offscreenPageLimit = 3  // загружает по 3 страницы слева и справа от текущей
+        viewPager.setCurrentItem(setPageOnToday(), false)
 
-            viewPager.adapter = daysAdapter
-
-            val calendar = Calendar.getInstance()
-            var today = calendar.get(Calendar.DAY_OF_WEEK) - 2
-
-            if (today == -1) today = 6 // Ставит на воскресенье
-
-            viewPager.currentItem = today
-
-            attachTabs()
-
-        } else {
-            startActivity(Intent(this, GroupSelectionActivity::class.java))
-        }
+        attachTabs()
     }
 
     private fun attachTabs() {
@@ -50,8 +40,23 @@ class MainActivity : AppCompatActivity() {
                 4 -> "пт"
                 5 -> "сб"
                 6 -> "вс"
-                else -> "Empty tab."
+                else -> "unwanted tab"
             }
-        }.attach()
+        } .attach()
+    }
+
+    private fun parseJson(jsonFile: String): List<ClassItem> {
+        return Gson().fromJson(
+            IOUtil.toString(assets.open(jsonFile)),
+            object : TypeToken<List<ClassItem>>() {}.type
+        )
+    }
+
+    private fun setPageOnToday(): Int {
+        var today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2  // т.к. по ум. Сб = 0
+
+        if (today < 0) today += 7
+
+        return today
     }
 }
