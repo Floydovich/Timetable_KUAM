@@ -21,12 +21,14 @@ class ClassesAdapter(private val classes: Array<ClassItem>)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val classItem = classes[position]
 
+        holder.view.startTime.text = TimeUtils.getStartTime(classItem.id)
+        holder.view.endTime.text = TimeUtils.getEndTime(classItem.id)
+
         holder.view.name.text = classItem.name
         holder.view.prof.text = classItem.prof
         holder.view.place.text = classItem.place
 
-        holder.view.startTime.text = TimeUtils.getStartTime(classItem.id)
-        holder.view.endTime.text = TimeUtils.getEndTime(classItem.id)
+        // TODO: Assign position to number textview and test
     }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)

@@ -1,7 +1,6 @@
 package com.example.timetable_kuam
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -15,29 +14,16 @@ import kotlinx.android.synthetic.main.content_group_selection.*
 
 class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
-    // Декларируются переменные, которые будут изменены позже.
-    private lateinit var sharedPreferences: SharedPreferences
+    // Лист специальностей будет заполнен позже.
     private lateinit var specs: Array<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         /*
-        Функция вызывается при первом запуске приложения (создании активити). Приложение пытается
-        получить название группы из файла настроек, которое осталось от предыдущего входа. Если есть
-        сохранение, тут же происходит переход в активити расписания. Если нет, отображается
-        вид выбора групп.
+        Функция вызывается при первом запуске приложения (создании активити).
          */
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = getSharedPreferences(USER_FILE, MODE)
-        val savedGroup = sharedPreferences.getString(PATH_SPEC_GROUP, null)
-
-        if (savedGroup != null) {
-            goToMainWithGroup(savedGroup)
-            finish()  // стирает активити чтобы не было белого экрана по кнопке назад
-        }
-        else {
-            setViewPager()
-        }
+        setActivityView()
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -58,17 +44,18 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
         )
     }
 
-    private fun goToMainWithGroup(fileExtra: String) {
+    private fun moveToMainWithSelectedGroup(filePath: String) {
         /*
         Переход в Мэйн Активити. Для этого создаётся экземпляр класс Интент с параметрами текущей
         активити и активити, куда надо перейти.мКладёт туда путь до JSON файла и стартует активити
          */
         val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra(PATH_SPEC_GROUP, fileExtra)
+        intent.putExtra(FILE_PATH, filePath)
         startActivity(intent)
+        finish()
     }
 
-    private fun setViewPager() {
+    private fun setActivityView() {
         /*
         Настраивает вид для выбора группы, подгружая лэйаут и панель инструментов.
         Создаётся лист из из названий специальностей и наполняет выпадающий список.
@@ -88,30 +75,14 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
     private fun setSpinnerListener() {
         button.setOnClickListener {
             /*
-            При нажатии на кнопку, сохраняет путь к файлу из специальности и группы.
-            Далее файл сохраняется в файле настроек.
             В конце вызывается функция перехода в другую активити.
             */
             val jsonFile = "specs/${spinnerSpecs.selectedItem}/${spinnerGroups.selectedItem}.json"
 
-            saveGroupToPref(jsonFile)
-
-            goToMainWithGroup(jsonFile)
+            moveToMainWithSelectedGroup(jsonFile) 
+        } 
     }
-}
-
-    private fun saveGroupToPref(group: String) {
-        /*
-        Сохраняет выбранную группу до перехода в активити расписания. Используется интерфейс
-        Editor внутри класса SharedPreferences, который был создан заранее.
-        Метод putString() вкладывает пару ключ и значение.
-        Метод apply() позволяет записывать значение на ходу.
-         */
-        val editor = sharedPreferences.edit()
-        editor.putString(PATH_SPEC_GROUP, group)
-        editor.apply()
-    }
-
+    
     private fun setSpinnerAdapter(itemsArray: Array<String>): ArrayAdapter<String> {
         /*
         Создаёт адаптер для спиннера и передаёт ему контекст (текущая активити), лэйаут из

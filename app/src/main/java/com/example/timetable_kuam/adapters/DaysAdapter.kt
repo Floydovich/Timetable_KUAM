@@ -14,10 +14,10 @@ class DaysAdapter(timetable: List<ClassItem>, fa: FragmentActivity) : FragmentSt
     override fun getItemCount() = 7
 
     override fun createFragment(position: Int): Fragment {
-        val classOfDay = classesGroupedByDay[position]
+        val timetable = classesGroupedByDay[position]
 
-        return if (classOfDay != null)
-            DayFragment.newInstance(classOfDay)
+        return if (timetable != null)
+            DayFragment.newInstance(timetable)
         else
             // TODO: Make fragment for weekend that displays something
             Fragment()

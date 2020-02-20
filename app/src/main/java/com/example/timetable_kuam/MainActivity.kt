@@ -1,6 +1,7 @@
 package com.example.timetable_kuam
 
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +9,9 @@ import android.view.Menu
 import android.view.MenuItem
 import com.example.timetable_kuam.adapters.DaysAdapter
 import com.example.timetable_kuam.model.ClassItem
-import com.example.timetable_kuam.utils.PATH_SPEC_GROUP
+import com.example.timetable_kuam.utils.FILE_PATH
+import com.example.timetable_kuam.utils.MODE
+import com.example.timetable_kuam.utils.USER_FILE
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -19,20 +22,44 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sharedPreferences = getSharedPreferences(USER_FILE, MODE)
+        val savedPath = sharedPreferences.getString(FILE_PATH, null)
+
+        val filePath = intent.getStringExtra(FILE_PATH) ?: savedPath
+
+        if (filePath != null) {
+
+            if (filePath != savedPath) {
+                savePath(FILE_PATH, filePath)
+            }
+
+            setViewPager(filePath)
+        } else {
+            moveToGroupSelection()
+        }
+    }
+
+    private fun setViewPager(filePath: String) {
         setContentView(R.layout.activity_main)
 
-        val filePath = intent.getStringExtra(PATH_SPEC_GROUP)
+        val daysAdapter = DaysAdapter(parseJson(filePath), this)
 
-        val timetable = parseJson(filePath)
-
-        val daysAdapter = DaysAdapter(timetable, this)
         viewPager.adapter = daysAdapter
         viewPager.offscreenPageLimit = 3  // загружает по 3 страницы слева и справа от текущей
         viewPager.setCurrentItem(setPageOnToday(), false)
 
         attachTabs()
+    }
+
+    private fun savePath(key: String, value: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString(key, value)
+        editor.apply()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

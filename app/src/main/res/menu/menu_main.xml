@@ -3,5 +3,5 @@
 
     <item
         android:id="@+id/toGroup"
-        android:title="Выбор группы" />
+        android:title="Сменить группу" />
 </menu>
