@@ -1,8 +1,11 @@
 package com.example.timetable_kuam
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import com.example.timetable_kuam.adapters.DaysAdapter
 import com.example.timetable_kuam.model.ClassItem
 import com.example.timetable_kuam.utils.PATH_SPEC_GROUP
@@ -30,6 +33,27 @@ class MainActivity : AppCompatActivity() {
         viewPager.setCurrentItem(setPageOnToday(), false)
 
         attachTabs()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.toGroup -> {
+                moveToGroupSelection()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun moveToGroupSelection() {
+        val intent = Intent(this, GroupSelectionActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun attachTabs() {

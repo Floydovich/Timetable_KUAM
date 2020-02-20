@@ -40,6 +40,24 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
         }
     }
 
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+        Log.d("SPEC_LISTENER", "Nothing is selected.")
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        /*
+        Когда выбирается элемент в списке специальностей, наполнение списка групп меняется.
+        assets.list находит все файлы в папке специальности, делает из них массив и передаёт его
+        адаптеру списка групп.
+         */
+        val groups = assets.list("specs/${specs[position]}") as Array<String>
+
+        spinnerGroups.adapter = setSpinnerAdapter(
+            groups.map { fileName ->
+                fileName.dropLast(5) }.toTypedArray()  // убирает расширение в конце файла
+        )
+    }
+
     private fun goToMainWithGroup(fileExtra: String) {
         /*
         Переход в Мэйн Активити. Для этого создаётся экземпляр класс Интент с параметрами текущей
@@ -106,23 +124,5 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
             itemsArray)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         return adapter
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        Log.d("SPEC_LISTENER", "Nothing is selected.")
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        /*
-        Когда выбирается элемент в списке специальностей, наполнение списка групп меняется.
-        assets.list находит все файлы в папке специальности, делает из них массив и передаёт его
-        адаптеру списка групп.
-         */
-        val groups = assets.list("specs/${specs[position]}") as Array<String>
-
-        spinnerGroups.adapter = setSpinnerAdapter(
-            groups.map { fileName ->
-                fileName.dropLast(5) }.toTypedArray()  // убирает расширение в конце файла
-        )
     }
 }
