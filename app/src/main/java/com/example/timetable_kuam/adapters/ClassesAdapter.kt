@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.item_class.view.*
 class ClassesAdapter(private val classes: Array<ClassItem>)
     : RecyclerView.Adapter<ClassesAdapter.ViewHolder>() {
 
-    override fun getItemCount() = 6  // hardcoded since its 6 classes maximum
+    override fun getItemCount() = 6  // захардкодил потому что 6 пар максимум
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(parent.inflate(R.layout.item_class))
@@ -28,7 +28,7 @@ class ClassesAdapter(private val classes: Array<ClassItem>)
         holder.view.prof.text = classItem.prof
         holder.view.place.text = classItem.place
 
-        // TODO: Assign position to number textview and test
+        // TODO: Assign position to number text view and test
     }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)

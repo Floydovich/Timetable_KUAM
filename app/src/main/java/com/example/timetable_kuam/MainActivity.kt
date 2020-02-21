@@ -24,10 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /*
 
-         */
-
+        //
         sharedPreferences = getSharedPreferences(USER_FILE, MODE)
 
         val spec = intent.getStringExtra(SPEC_NAME) ?: 
