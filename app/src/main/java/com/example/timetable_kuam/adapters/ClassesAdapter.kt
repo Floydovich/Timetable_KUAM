@@ -28,7 +28,7 @@ class ClassesAdapter(private val classes: Array<ClassItem>)
         holder.view.prof.text = classItem.prof
         holder.view.place.text = classItem.place
 
-        // TODO: Assign position to number text view and test
+        holder.view.number.text = (classItem.id + 1).toString()
     }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
