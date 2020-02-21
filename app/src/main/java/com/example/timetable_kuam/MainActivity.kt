@@ -9,16 +9,14 @@ import android.view.Menu
 import android.view.MenuItem
 import com.example.timetable_kuam.adapters.DaysAdapter
 import com.example.timetable_kuam.model.ClassItem
-import com.example.timetable_kuam.utils.FILE_PATH
-import com.example.timetable_kuam.utils.MODE
-import com.example.timetable_kuam.utils.USER_FILE
+import com.example.timetable_kuam.utils.*
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.apache.commons.io.IOUtil
 import java.util.*
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,28 +24,34 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        /*
+
+         */
 
         sharedPreferences = getSharedPreferences(USER_FILE, MODE)
-        val savedPath = sharedPreferences.getString(FILE_PATH, null)
 
-        val filePath = intent.getStringExtra(FILE_PATH) ?: savedPath
+        val spec = intent.getStringExtra(SPEC_NAME) ?: 
+            sharedPreferences.getString(SPEC_NAME, null)
+        
+        val group = intent.getStringExtra(GROUP_NAME) ?:
+            sharedPreferences.getString(GROUP_NAME, null)
 
-        if (filePath != null) {
+        if (group != null && spec != null) {
+            title = group
 
-            if (filePath != savedPath) {
-                savePath(FILE_PATH, filePath)
-            }
+            savePath(SPEC_NAME, spec)
+            savePath(GROUP_NAME, group)
 
-            setViewPager(filePath)
+            setViewPager("specs/${spec}/${group}.json")
         } else {
             moveToGroupSelection()
         }
     }
 
-    private fun setViewPager(filePath: String) {
+    private fun setViewPager(path: String) {
         setContentView(R.layout.activity_main)
 
-        val daysAdapter = DaysAdapter(parseJson(filePath), this)
+        val daysAdapter = DaysAdapter(parseJson(path), this)
 
         viewPager.adapter = daysAdapter
         viewPager.offscreenPageLimit = 3  // загружает по 3 страницы слева и справа от текущей
@@ -80,7 +84,7 @@ class MainActivity : AppCompatActivity() {
     private fun moveToGroupSelection() {
         val intent = Intent(this, GroupSelectionActivity::class.java)
         startActivity(intent)
-        finish()
+        finish()  // стираем чтобы не было возврата к прошлой выбранной группе
     }
 
     private fun attachTabs() {

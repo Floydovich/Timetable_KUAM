@@ -44,17 +44,6 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
         )
     }
 
-    private fun moveToMainWithSelectedGroup(filePath: String) {
-        /*
-        Переход в Мэйн Активити. Для этого создаётся экземпляр класс Интент с параметрами текущей
-        активити и активити, куда надо перейти.мКладёт туда путь до JSON файла и стартует активити
-         */
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra(FILE_PATH, filePath)
-        startActivity(intent)
-        finish()
-    }
-
     private fun setActivityView() {
         /*
         Настраивает вид для выбора группы, подгружая лэйаут и панель инструментов.
@@ -70,19 +59,8 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
 
         spinnerSpecs.onItemSelectedListener = this
         setSpinnerListener()
-        }
-
-    private fun setSpinnerListener() {
-        button.setOnClickListener {
-            /*
-            В конце вызывается функция перехода в другую активити.
-            */
-            val jsonFile = "specs/${spinnerSpecs.selectedItem}/${spinnerGroups.selectedItem}.json"
-
-            moveToMainWithSelectedGroup(jsonFile) 
-        } 
     }
-    
+
     private fun setSpinnerAdapter(itemsArray: Array<String>): ArrayAdapter<String> {
         /*
         Создаёт адаптер для спиннера и передаёт ему контекст (текущая активити), лэйаут из
@@ -90,10 +68,35 @@ class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedLi
         списка.
         Также, устанавливается лэйаут отдельного элемента.
          */
-        val adapter = ArrayAdapter(this,
+        val adapter = ArrayAdapter<String>(this,
             android.R.layout.simple_spinner_item,
             itemsArray)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         return adapter
+    }
+
+    private fun setSpinnerListener() {
+        button.setOnClickListener {
+            /*
+            По нажатию кнопки вызывается функция перехода в расписание, которому передаётся
+            выбранная специальность и название группы.
+            */
+            moveToTimetableWithSpecAndGroup(
+                spinnerSpecs.selectedItem.toString(),
+                spinnerGroups.selectedItem.toString()
+            )
+        }
+    }
+
+    private fun moveToTimetableWithSpecAndGroup(spec: String, group: String) {
+        /*
+        Переход в Мэйн Активити. Для этого создаётся экземпляр класс Интент с параметрами текущей
+        активити и активити, куда надо перейти.мКладёт туда путь до JSON файла и стартует активити
+         */
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("SPEC_NAME", spec)
+        intent.putExtra("GROUP_NAME", group)
+        startActivity(intent)
+        finish()  // если не стереть будет белый экран при возврате назад при первом входе
     }
 }
