@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Расписание beta</string>
     <string name="title_activity_group_selection">Расписание beta</string>
+    <string name="CheckIt">Перейти</string>
 </resources>
