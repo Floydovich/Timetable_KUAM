@@ -8,36 +8,79 @@
     tools:context=".GroupSelectionActivity"
     tools:showIn="@layout/activity_group_selection">
 
-    <Spinner
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="#3F51B5"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/select"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/spinnerGroups"
+        app:layout_constraintStart_toStartOf="@+id/spinnerGroups"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerGroups" />
+
+    <com.chivorn.smartmaterialspinner.SmartMaterialSpinner
         android:id="@+id/spinnerSpecs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="96dp"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        android:dropDownWidth="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:smsp_alwaysShowFloatingLabel="false"
+        app:smsp_enableErrorLabel="true"
+        app:smsp_enableFloatingLabel="false"
+        app:smsp_errorText="@string/empty_error"
+        app:smsp_errorTextSize="14sp"
+        app:smsp_floatingLabelColor="#1976D2"
+        app:smsp_floatingLabelText="Floating Label Text"
+        app:smsp_hint="Специальность"
+        app:smsp_hintColor="#969696"
+        app:smsp_hintSize="18sp"
+        app:smsp_itemColor="#000000"
+        app:smsp_itemListColor="#000000"
+        app:smsp_itemListHintBackgroundColor="#808080"
+        app:smsp_itemListHintColor="#FFFFFF"
+        app:smsp_itemSize="18sp"
+        app:smsp_multilineError="false"
+        app:smsp_selectedItemListColor="#3F51B5" />
 
-    <Spinner
+    <com.chivorn.smartmaterialspinner.SmartMaterialSpinner
         android:id="@+id/spinnerGroups"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
         app:layout_constraintEnd_toEndOf="@+id/spinnerSpecs"
         app:layout_constraintStart_toStartOf="@+id/spinnerSpecs"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerSpecs" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerSpecs"
+        app:smsp_alwaysShowFloatingLabel="true"
+        app:smsp_enableErrorLabel="true"
+        app:smsp_enableFloatingLabel="false"
+        app:smsp_errorText="@string/empty_error"
+        app:smsp_errorTextSize="14sp"
+        app:smsp_floatingLabelColor="#1976D2"
+        app:smsp_floatingLabelText="Floating Label Text"
+        app:smsp_hint="Группа"
+        app:smsp_hintColor="#969696"
+        app:smsp_hintSize="18sp"
+        app:smsp_itemColor="#000000"
+        app:smsp_itemListColor="#000000"
+        app:smsp_itemListHintBackgroundColor="#808080"
+        app:smsp_itemListHintColor="#FFFFFF"
+        app:smsp_itemSize="18sp"
+        app:smsp_multilineError="false"
+        app:smsp_selectedItemListColor="#3F51B5" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:text="@string/check_it"
-        app:layout_constraintEnd_toEndOf="@+id/spinnerGroups"
-        app:layout_constraintStart_toStartOf="@+id/spinnerGroups"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerGroups" />
 </androidx.constraintlayout.widget.ConstraintLayout>

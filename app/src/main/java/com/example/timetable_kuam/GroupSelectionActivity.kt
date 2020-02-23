@@ -3,95 +3,76 @@ package com.example.timetable_kuam
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
-import com.example.timetable_kuam.utils.*
-
 import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.content_group_selection.*
 
-class GroupSelectionActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+class GroupSelectionActivity : AppCompatActivity() {
 
-    // Лист специальностей будет заполнен позже.
-    private lateinit var specs: Array<String>
+    private lateinit var specs: List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         /*
         Функция вызывается при первом запуске приложения (создании активити).
-         */
-        super.onCreate(savedInstanceState)
-
-        setActivityView()
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        Log.d("SPEC_LISTENER", "Nothing is selected.")
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        /*
-        Когда выбирается элемент в списке специальностей, наполнение списка групп меняется.
-        assets.list находит все файлы в папке специальности, делает из них массив и передаёт его
-        адаптеру списка групп.
-         */
-        val groups = assets.list("specs/${specs[position]}") as Array<String>
-
-        spinnerGroups.adapter = setSpinnerAdapter(
-            groups.map { fileName ->
-                fileName.dropLast(5) }.toTypedArray()  // убирает расширение в конце файла
-        )
-    }
-
-    private fun setActivityView() {
-        /*
         Настраивает вид для выбора группы, подгружая лэйаут и панель инструментов.
         Создаётся лист из из названий специальностей и наполняет выпадающий список.
         Далее устанавливает лиснер (уловитель) для переключения групп при выборе специальности.
          */
+        super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_group_selection)
         setSupportActionBar(toolbar)
 
-        specs = assets.list("specs") as Array<String>
+        specs = assets.list("specs")?.toList() as List<String>
 
-        spinnerSpecs.adapter = setSpinnerAdapter(specs)
+        initSpinners()
 
-        spinnerSpecs.onItemSelectedListener = this
-        setSpinnerListener()
+        initButton()
     }
 
-    private fun setSpinnerAdapter(itemsArray: Array<String>): ArrayAdapter<String> {
+    private fun initSpinners() {
         /*
-        Создаёт адаптер для спиннера и передаёт ему контекст (текущая активити), лэйаут из
-        библиотеки Андроид, и массив, из которого беруется значения для элементов выпадающего
-        списка.
-        Также, устанавливается лэйаут отдельного элемента.
+        Устанавливает содержимое списка выбора специальностей и задаёт им датчики выбора
+        onItemSelectedListener. Для спиннера групп также задаётся датчик клика setOnEmptySpinnerClickListener.
          */
-        val adapter = ArrayAdapter<String>(this,
-            android.R.layout.simple_spinner_item,
-            itemsArray)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        return adapter
+        spinnerSpecs.item = specs
+
+        spinnerGroups.setOnEmptySpinnerClickListener {
+            spinnerGroups.errorText = "Сначала выберите специальность"
+        }
+
+        spinnerSpecs.onItemSelectedListener = SpecsListener(spinnerSpecs, spinnerGroups, specs, assets)
+
+        spinnerGroups.onItemSelectedListener = GroupsListener(spinnerSpecs, spinnerGroups)
     }
 
-    private fun setSpinnerListener() {
+    private fun initButton() {
+        /*
+        Кнопке задаётся датчик клика через метод setOnClickListener, который если кнопка была
+        нажата, проверяет выбраны ли специальность и группа и запускает переход в расписание.
+        Если они не выбраны, появляется сообщение об ошибке.
+        */
         button.setOnClickListener {
-            /*
-            По нажатию кнопки вызывается функция перехода в расписание, которому передаётся
-            выбранная специальность и название группы.
-            */
-            moveToTimetableWithSpecAndGroup(
-                spinnerSpecs.selectedItem.toString(),
-                spinnerGroups.selectedItem.toString()
-            )
+            val spec = spinnerSpecs.selectedItem
+            val group = spinnerGroups.selectedItem
+
+            if (spec != null && group != null) {
+                moveToTimetableWithSpecAndGroup(
+                    spinnerSpecs.selectedItem.toString(),
+                    spinnerGroups.selectedItem.toString()
+                )
+            } else {
+                if (spec == null) spinnerSpecs.errorText = "Вы не выбрали специальность"
+                if (group == null) spinnerGroups.errorText = "Вы не выбрали группу"
+            }
         }
     }
 
     private fun moveToTimetableWithSpecAndGroup(spec: String, group: String) {
         /*
-        Переход в Мэйн Активити. Для этого создаётся экземпляр класс Интент с параметрами текущей
-        активити и активити, куда надо перейти.мКладёт туда путь до JSON файла и стартует активити
+        Переход в расписание. В специальный класс Intent указывается контекст, то есть данная
+        активити (откуда) и MainActivity как класс (куда). Метод putExtra помещается внутрь класса
+        название специальности и группы. Intent передаётся функции startActivity для перехода.
          */
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("SPEC_NAME", spec)
