@@ -8,7 +8,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.example.timetable_kuam"
+        applicationId 'com.floydovich.timetable_kuam'
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1

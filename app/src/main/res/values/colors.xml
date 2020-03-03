@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#002EFD</color>  // середина
-    <color name="colorPrimaryDark">#0023FF</color>  // вверх
-    <color name="colorAccent">#0023FF</color>  // вкладки,дни
+    <color name="colorPrimaryDark">#512DA8</color>
+    <color name="colorPrimary">#5E35B1</color>
+    <color name="colorAccent">#673AB7</color>
 </resources>
