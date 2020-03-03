@@ -16,6 +16,8 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.apache.commons.io.IOUtil
+import java.io.IOException
+import java.security.acl.Group
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -23,9 +25,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        /*
-
-         */
         super.onCreate(savedInstanceState)
 
         sharedPreferences = getSharedPreferences(USER_FILE, MODE)
@@ -42,10 +41,26 @@ class MainActivity : AppCompatActivity() {
             savePath(SPEC_NAME, spec)
             savePath(GROUP_NAME, group)
 
-            setViewPager("specs/${spec}/${group}.json")
+            // Ловит ошибку если был удалён файл сохранённой группы
+            try {
+                setViewPager("specs/${spec}/${group}.json")
+            } catch (e: IOException) {
+                clearPreferences()
+            }
         } else {
             moveToGroupSelection()
         }
+    }
+
+    private fun clearPreferences() {
+        /*
+        Окрывает редактирование файла сохранений. Использует метод clear чтобы стереть всё и
+        сохраняет изменения.
+         */
+        val editor = sharedPreferences.edit()
+        editor.clear()
+        editor.apply()
+        finish()
     }
 
     private fun setViewPager(path: String) {
