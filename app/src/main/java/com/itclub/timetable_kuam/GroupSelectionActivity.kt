@@ -2,10 +2,10 @@ package com.itclub.timetable_kuam
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.timetable_kuam.GroupsListener
 import com.example.timetable_kuam.R
-import com.example.timetable_kuam.SpecsListener
 import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.content_group_selection.*
 
@@ -25,8 +25,8 @@ class GroupSelectionActivity : AppCompatActivity() {
         setContentView(R.layout.activity_group_selection)
         setSupportActionBar(toolbar)
 
-        // TODO: Catch error if JSON file was deleted
         specs = assets.list("specs")!!.toList()
+
         initSpinners()
 
         initButton()
@@ -43,9 +43,49 @@ class GroupSelectionActivity : AppCompatActivity() {
             spinnerGroups.errorText = "Сначала выберите специальность"
         }
 
-        spinnerSpecs.onItemSelectedListener = SpecsListener(spinnerSpecs, spinnerGroups, specs, assets)
+        spinnerSpecs.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
-        spinnerGroups.onItemSelectedListener = GroupsListener(spinnerSpecs, spinnerGroups)
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                /*
+                Меняет текст ошибок у спиннеров, если был сделан выбор. Также выбор специальности,
+                заполняет список групп.
+                 */
+                spinnerSpecs.errorText = " "
+
+                if (spinnerGroups.errorText == "Сначала выберите специальность")
+                    spinnerGroups.errorText = " "
+
+                /*
+                Метод list возвращает массив из названий файлов в папке assets/specs/<специальность>.
+                При нажатии передаётся порядковый номер специальности в спиннере, что позволяет получить
+                название из массива всех специальностей и добавить в путь.
+                 */
+                spinnerGroups.item = assets.list("specs/${specs[position]}")!!
+                    .map { name -> name.dropLast(5) }  // убирает .json из названий групп
+            }
+        }
+
+        spinnerGroups.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                spinnerSpecs.errorText = " "
+                spinnerGroups.errorText = " "
+            }
+        }
     }
 
     private fun initButton() {

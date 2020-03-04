@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // TODO: Refactor getting spec and group names
         sharedPreferences = getSharedPreferences(USER_FILE, MODE)
 
         val spec = intent.getStringExtra(SPEC_NAME) ?: 
@@ -39,8 +38,10 @@ class MainActivity : AppCompatActivity() {
         if (group != null && spec != null) {
             title = group
 
-            savePath(SPEC_NAME, spec)
-            savePath(GROUP_NAME, group)
+            val editor = sharedPreferences.edit()
+            editor.putString(SPEC_NAME, spec)
+            editor.putString(GROUP_NAME, group)
+            editor.apply()
 
             // Ловит ошибку если был удалён файл сохранённой группы
             try {
@@ -83,7 +84,6 @@ class MainActivity : AppCompatActivity() {
                 lastPosition = position
             }
         })
-
     }
 
     private fun spCleared(): Boolean {
@@ -94,12 +94,6 @@ class MainActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         editor.clear()
         return editor.commit()
-    }
-
-    private fun savePath(key: String, value: String) {
-        val editor = sharedPreferences.edit()
-        editor.putString(key, value)
-        editor.apply()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

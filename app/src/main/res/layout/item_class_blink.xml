@@ -92,12 +92,13 @@
 
         <TextView
             android:id="@+id/prof"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:maxLines="2"
             android:text="Актаева А.У"
             android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/dividerInner"
             app:layout_constraintStart_toStartOf="@+id/name"
             app:layout_constraintTop_toBottomOf="@+id/name" />
 
@@ -137,12 +138,13 @@
 
         <TextView
             android:id="@+id/prof2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="3dp"
             android:maxLines="2"
             android:text="Актаева А.У"
             android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/name2"
             app:layout_constraintTop_toBottomOf="@+id/name2" />
 
@@ -150,7 +152,7 @@
             android:id="@+id/place2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="3dp"
             android:text="318/2"
             android:textSize="12sp"
             android:textStyle="bold"
