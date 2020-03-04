@@ -1,11 +1,10 @@
-package com.example.timetable_kuam.adapters
+package com.itclub.timetable_kuam.adapters
 
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.timetable_kuam.DayFragment
-import com.example.timetable_kuam.model.ClassItem
+import com.itclub.timetable_kuam.DayFragment
+import com.itclub.timetable_kuam.model.ClassItem
 
 class DaysAdapter(timetable: List<ClassItem>, fa: FragmentActivity) : FragmentStateAdapter(fa) {
 

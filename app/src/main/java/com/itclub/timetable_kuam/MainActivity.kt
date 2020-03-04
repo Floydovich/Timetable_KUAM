@@ -1,4 +1,4 @@
-package com.example.timetable_kuam
+package com.itclub.timetable_kuam
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -7,17 +7,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import com.example.timetable_kuam.adapters.DaysAdapter
-import com.example.timetable_kuam.model.ClassItem
+import androidx.viewpager2.widget.ViewPager2
+import com.example.timetable_kuam.R
+import com.itclub.timetable_kuam.adapters.DaysAdapter
+import com.itclub.timetable_kuam.model.ClassItem
 import com.example.timetable_kuam.utils.*
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.apache.commons.io.IOUtil
 import java.io.IOException
-import java.security.acl.Group
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // TODO: Refactor getting spec and group names
         sharedPreferences = getSharedPreferences(USER_FILE, MODE)
 
         val spec = intent.getStringExtra(SPEC_NAME) ?: 
@@ -45,22 +46,12 @@ class MainActivity : AppCompatActivity() {
             try {
                 setViewPager("specs/${spec}/${group}.json")
             } catch (e: IOException) {
-                clearPreferences()
+                if (spCleared())
+                    finish()
             }
         } else {
             moveToGroupSelection()
         }
-    }
-
-    private fun clearPreferences() {
-        /*
-        Окрывает редактирование файла сохранений. Использует метод clear чтобы стереть всё и
-        сохраняет изменения.
-         */
-        val editor = sharedPreferences.edit()
-        editor.clear()
-        editor.apply()
-        finish()
     }
 
     private fun setViewPager(path: String) {
@@ -73,6 +64,36 @@ class MainActivity : AppCompatActivity() {
         viewPager.setCurrentItem(setPageOnToday(), false)
 
         attachTabs()
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+
+            var lastPosition: Int = 0
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                /*
+                Сохраняет прошлую позицию и сравнивает с текущей. При попытке перемотки, если было
+                6 и стало 6, перематывает на понедельник.
+                 */
+                if (lastPosition == 6 && position == 6)
+                    viewPager.currentItem = 0
+                lastPosition = position
+            }
+        })
+
+    }
+
+    private fun spCleared(): Boolean {
+        /*
+        Окрывает редактирование файла сохранений. Использует метод clear чтобы стереть всё и
+        сохраняет изменения.
+         */
+        val editor = sharedPreferences.edit()
+        editor.clear()
+        return editor.commit()
     }
 
     private fun savePath(key: String, value: String) {
@@ -103,7 +124,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun attachTabs() {
-        TabLayoutMediator(tabs, viewPager) {tab, position ->
+        TabLayoutMediator(tabs, viewPager) { tab, position ->
+            Log.d("TAB_POSITION", position.toString())
             tab.text = when(position) {
                 0 -> "пн"
                 1 -> "вт"
@@ -112,9 +134,9 @@ class MainActivity : AppCompatActivity() {
                 4 -> "пт"
                 5 -> "сб"
                 6 -> "вс"
-                else -> "unwanted tab"
+                else -> ""
             }
-        } .attach()
+        }.attach()
     }
 
     private fun parseJson(jsonFile: String): List<ClassItem> {
