@@ -1,10 +1,10 @@
-package com.itclub.timetable_kuam.adapters
+package com.example.timetable_kuam.adapters
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.timetable_kuam.R
-import com.itclub.timetable_kuam.model.ClassItem
+import com.example.timetable_kuam.model.ClassItem
 import com.example.timetable_kuam.utils.TimeUtils
 import com.example.timetable_kuam.utils.inflate
 import kotlinx.android.synthetic.main.item_class.view.timebox

@@ -1,4 +1,4 @@
-package com.itclub.timetable_kuam
+package com.example.timetable_kuam
 
 import android.content.Intent
 import android.os.Bundle
