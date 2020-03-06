@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.timetable_kuam">
+    package="com.it_club.timetable_kuam">
 
     <application
         android:allowBackup="true"
@@ -10,12 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.example.timetable_kuam.GroupSelectionActivity"
+            android:name="com.it_club.timetable_kuam.GroupSelectionActivity"
             android:label="@string/title_activity_group_selection"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name="com.example.timetable_kuam.MainActivity">
+            android:name="com.it_club.timetable_kuam.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -23,7 +23,7 @@ android {
     }
     sourceSets {
         main {
-            assets.srcDirs = ['src/main/assets', 'src/main/java/com.example.timetable_kuam/assets']
+            assets.srcDirs = ['src/main/assets', 'src/main/java/com.it_club.timetable_kuam/assets']
         }
     }
 }

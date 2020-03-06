@@ -1,4 +1,4 @@
-package com.example.timetable_kuam
+package com.it_club.timetable_kuam
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.timetable_kuam", appContext.packageName)
+        assertEquals("com.it_club.timetable_kuam", appContext.packageName)
     }
 }

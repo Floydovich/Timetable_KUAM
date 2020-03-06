@@ -1,11 +1,10 @@
-package com.example.timetable_kuam
+package com.it_club.timetable_kuam
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.timetable_kuam.R
 import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.content_group_selection.*
 

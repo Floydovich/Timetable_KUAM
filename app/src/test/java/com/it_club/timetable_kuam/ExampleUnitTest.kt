@@ -1,4 +1,4 @@
-package com.example.timetable_kuam
+package com.it_club.timetable_kuam
 
 import org.junit.Test
 

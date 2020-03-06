@@ -1,4 +1,4 @@
-package com.example.timetable_kuam.utils
+package com.it_club.timetable_kuam.utils
 
 import android.view.LayoutInflater
 import android.view.View

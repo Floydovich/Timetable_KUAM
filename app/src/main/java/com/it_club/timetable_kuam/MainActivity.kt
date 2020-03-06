@@ -1,4 +1,4 @@
-package com.example.timetable_kuam
+package com.it_club.timetable_kuam
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -8,9 +8,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.viewpager2.widget.ViewPager2
-import com.example.timetable_kuam.adapters.DaysAdapter
-import com.example.timetable_kuam.model.ClassItem
-import com.example.timetable_kuam.utils.*
+import com.it_club.timetable_kuam.adapters.DaysAdapter
+import com.it_club.timetable_kuam.model.ClassItem
+import com.it_club.timetable_kuam.utils.*
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

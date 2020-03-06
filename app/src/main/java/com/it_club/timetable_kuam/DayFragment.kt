@@ -1,4 +1,4 @@
-package com.example.timetable_kuam
+package com.it_club.timetable_kuam
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.timetable_kuam.adapters.ClassesAdapter
-import com.example.timetable_kuam.model.ClassItem
-import com.example.timetable_kuam.utils.ARG_TIMETABLE
+import com.it_club.timetable_kuam.adapters.ClassesAdapter
+import com.it_club.timetable_kuam.model.ClassItem
+import com.it_club.timetable_kuam.utils.ARG_TIMETABLE
 import kotlinx.android.synthetic.main.day_fragment.*
 
 @Suppress("UNCHECKED_CAST")

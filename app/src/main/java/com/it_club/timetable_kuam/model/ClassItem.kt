@@ -1,4 +1,4 @@
-package com.example.timetable_kuam.model
+package com.it_club.timetable_kuam.model
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
