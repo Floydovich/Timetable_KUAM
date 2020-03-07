@@ -1,7 +1,5 @@
 package com.it_club.timetable_kuam
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -13,11 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.it_club.timetable_kuam.adapters.DaysAdapter
 import com.it_club.timetable_kuam.model.ClassItem
-import com.it_club.timetable_kuam.model.NotificationItem
 import com.it_club.timetable_kuam.model.NotificationsManager
 import com.it_club.timetable_kuam.utils.GROUP_NAME
 import com.it_club.timetable_kuam.utils.MODE
@@ -25,7 +23,6 @@ import com.it_club.timetable_kuam.utils.SPEC_NAME
 import com.it_club.timetable_kuam.utils.USER_FILE
 import com.nex3z.notificationbadge.NotificationBadge
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.item_notification.view.*
 import org.apache.commons.io.IOUtil
 import java.io.IOException
 import java.util.*
@@ -34,27 +31,15 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var filePath: String
-
     private lateinit var notificationBadge: NotificationBadge
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // При запуске, проверяет есть ли токен у приложения и показывает его
-        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener(OnCompleteListener { task ->
-            val TAG = "FirebaseMsgService"
-            if (!task.isSuccessful) {
-                Log.w(TAG, "getIntance failed", task.exception)
-                return@OnCompleteListener
-            }
-            val token = task.result?.token
-            Log.d(TAG, token)
-            Toast.makeText(baseContext, token, Toast.LENGTH_SHORT).show()
-        })
+        setContentView(R.layout.activity_main)
 
         sharedPreferences = getSharedPreferences(USER_FILE, MODE)
 
-        val spec = intent.getStringExtra(SPEC_NAME) ?: 
+        val spec = intent.getStringExtra(SPEC_NAME) ?:
             sharedPreferences.getString(SPEC_NAME, null)
         
         val group = intent.getStringExtra(GROUP_NAME) ?:
@@ -64,7 +49,6 @@ class MainActivity : AppCompatActivity() {
             title = group
             filePath = "specs/${spec}/${group}.json"
 
-            // TODO: Edit preferences when user quits
             val editor = sharedPreferences.edit()
             editor.putString(SPEC_NAME, spec)
             editor.putString(GROUP_NAME, group)
@@ -72,9 +56,27 @@ class MainActivity : AppCompatActivity() {
 
             // Ловит ошибку если был удалён файл сохранённой группы
             try {
-                setViewPager()
+                val timetable = Gson().fromJson<List<ClassItem>>(
+                    IOUtil.toString(assets.open(filePath)),
+                    object : TypeToken<List<ClassItem>>() {}.type
+                )
+
+                viewPager.adapter = DaysAdapter(timetable, this)
+                viewPager.offscreenPageLimit = 3  // загружает по 3 страницы слева и справа от текущей
+                viewPager.setCurrentItem(setDay(), false)
+
+                TabLayoutMediator(tabs, viewPager) { tab, position ->
+                    tab.text = when(position) {
+                        0 -> "пн"
+                        1 -> "вт"
+                        2 -> "ср"
+                        3 -> "чт"
+                        4 -> "пт"
+                        else -> ""
+                    }
+                }.attach()
             } catch (e: IOException) {
-                if (spCleared())
+                if (spIsCleared())
                     finish()
             }
         } else {
@@ -82,17 +84,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setViewPager() {
-        setContentView(R.layout.activity_main)
-
-        viewPager.adapter = DaysAdapter(parseJson(filePath), this)
-        viewPager.offscreenPageLimit = 3  // загружает по 3 страницы слева и справа от текущей
-        viewPager.setCurrentItem(setDay(), false)
-
-        attachTabs()
-    }
-
-    private fun spCleared(): Boolean {
+    private fun spIsCleared(): Boolean {
         /*
         Окрывает редактирование файла сохранений. Использует метод clear чтобы стереть всё и
         сохраняет изменения.
@@ -135,6 +127,18 @@ class MainActivity : AppCompatActivity() {
                 moveToNotifications()
                 true
             }
+//            R.id.subscribeToTopic -> {
+//                FirebaseMessaging.getInstance().subscribeToTopic("test2")
+//                    .addOnCompleteListener { task ->
+//                        var msg = "Subscribed to test2."
+//                        if (!task.isSuccessful) {
+//                            msg = "Failed to subscribe to test2."
+//                        }
+//                        Log.d("FirebaseMsgService", msg)
+//                        Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
+//                    }
+//                true
+//            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -148,26 +152,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, GroupSelectionActivity::class.java)
         startActivity(intent)
         finish()  // стираем чтобы не было возврата к прошлой выбранной группе
-    }
-
-    private fun attachTabs() {
-        TabLayoutMediator(tabs, viewPager) { tab, position ->
-            tab.text = when(position) {
-                0 -> "пн"
-                1 -> "вт"
-                2 -> "ср"
-                3 -> "чт"
-                4 -> "пт"
-                else -> ""
-            }
-        }.attach()
-    }
-
-    private fun parseJson(filePath: String): List<ClassItem> {
-        return Gson().fromJson(
-            IOUtil.toString(assets.open(filePath)),
-            object : TypeToken<List<ClassItem>>() {}.type
-        )
     }
 
     private fun setDay(): Int {

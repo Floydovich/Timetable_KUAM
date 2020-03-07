@@ -19,6 +19,7 @@ class TimetableFirebaseMessagingService : FirebaseMessagingService() {
         Log.d(TAG, "Notification data: $data")
 
         NotificationsManager.newMessages++
+        Log.d(TAG, "New notifications: ${NotificationsManager.newMessages}")
 
         Log.d(TAG, "Notification title: ${title}")
         Log.d(TAG, "Notification body: ${body}")
