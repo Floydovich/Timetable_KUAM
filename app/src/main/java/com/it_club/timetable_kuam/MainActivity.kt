@@ -64,25 +64,6 @@ class MainActivity : AppCompatActivity() {
         viewPager.setCurrentItem(setPageOnToday(), false)
 
         attachTabs()
-
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-
-            var lastPosition: Int = 0
-
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-                /*
-                Сохраняет прошлую позицию и сравнивает с текущей. При попытке перемотки, если было
-                6 и стало 6, перематывает на понедельник.
-                 */
-                if (lastPosition == 6 && position == 6)
-                    viewPager.currentItem = 0
-                lastPosition = position
-            }
-        })
     }
 
     private fun spCleared(): Boolean {
@@ -125,8 +106,6 @@ class MainActivity : AppCompatActivity() {
                 2 -> "ср"
                 3 -> "чт"
                 4 -> "пт"
-                5 -> "сб"
-                6 -> "вс"
                 else -> ""
             }
         }.attach()
@@ -140,10 +119,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setPageOnToday(): Int {
-        var today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2  // т.к. по ум. Сб = 0
-
-        if (today < 0) today += 7
-
-        return today
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2  // т.к. по ум. Сб = 0
+        return if (today < 5) today else 0
     }
 }
