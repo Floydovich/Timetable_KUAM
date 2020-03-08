@@ -42,4 +42,5 @@ dependencies {
     implementation 'commons-io:commons-io:20030203.000550'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.github.chivorns:smartmaterialspinner:1.1.6'
+    implementation 'com.nex3z:notification-badge:1.0.2'
 }
