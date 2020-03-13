@@ -31,7 +31,6 @@ class NotificationsAdapter(private val notifications: List<NotificationItem>)
 
         fun bind(item: NotificationItem) {
             itemView.notificationText.text = item.text
-            // TODO: Add date and day of the week
         }
     }
 }

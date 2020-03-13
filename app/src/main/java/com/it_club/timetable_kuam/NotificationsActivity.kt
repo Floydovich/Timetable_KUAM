@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.it_club.timetable_kuam.adapters.NotificationsAdapter
 import com.it_club.timetable_kuam.model.NotificationItem
+import com.it_club.timetable_kuam.model.NotificationsManager
 import kotlinx.android.synthetic.main.activity_notifications.*
 
 class NotificationsActivity : AppCompatActivity() {
@@ -15,10 +16,7 @@ class NotificationsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_notifications)
 
         recyclerViewNotifications.layoutManager = LinearLayoutManager(this)
-        recyclerViewNotifications.adapter = NotificationsAdapter(listOf(
-            NotificationItem("ИС-32", "В четверг пара СУБД была перенесена в 306 кабинет.", "Четверг", "31 марта"),
-            NotificationItem("ИС-32", "В пятницу коронавирус убил всех. Заниятия отменяются.", "Пятница", "1 апреля")
-        ))
+        recyclerViewNotifications.adapter = NotificationsAdapter(NotificationsManager.notifications)
     }
 
 //

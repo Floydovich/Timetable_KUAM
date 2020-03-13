@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "572194884861",
+    "firebase_url": "https://timetablekuam-b341f.firebaseio.com",
+    "project_id": "timetablekuam-b341f",
+    "storage_bucket": "timetablekuam-b341f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572194884861:android:80bc5d98a05d57b1ccc294",
+        "android_client_info": {
+          "package_name": "com.it_club.timetable_kuam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572194884861-0e98vpa4p4n5je87nss9rc9cvhei35ml.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPWkqDNYEEdvUHLV3ctQpUpPnT-UJpt6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572194884861-0e98vpa4p4n5je87nss9rc9cvhei35ml.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

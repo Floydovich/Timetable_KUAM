@@ -11,7 +11,5 @@
         android:icon="@drawable/ic_notifications_white_24dp"
         android:title="Уведомления"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/increase"
-        android:title="Отправить уведомление" />
+
 </menu>

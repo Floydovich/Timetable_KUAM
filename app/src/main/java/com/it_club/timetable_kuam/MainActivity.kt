@@ -1,17 +1,24 @@
 package com.it_club.timetable_kuam
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.it_club.timetable_kuam.adapters.DaysAdapter
 import com.it_club.timetable_kuam.model.ClassItem
+import com.it_club.timetable_kuam.model.NotificationItem
+import com.it_club.timetable_kuam.model.NotificationsManager
 import com.it_club.timetable_kuam.utils.GROUP_NAME
 import com.it_club.timetable_kuam.utils.MODE
 import com.it_club.timetable_kuam.utils.SPEC_NAME
@@ -29,10 +36,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var filePath: String
 
     private lateinit var notificationBadge: NotificationBadge
-    var notificationsCounter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // При запуске, проверяет есть ли токен у приложения и показывает его
+        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener(OnCompleteListener { task ->
+            val TAG = "FirebaseMsgService"
+            if (!task.isSuccessful) {
+                Log.w(TAG, "getIntance failed", task.exception)
+                return@OnCompleteListener
+            }
+            val token = task.result?.token
+            Log.d(TAG, token)
+            Toast.makeText(baseContext, token, Toast.LENGTH_SHORT).show()
+        })
 
         sharedPreferences = getSharedPreferences(USER_FILE, MODE)
 
@@ -92,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         notificationBadge = actionView?.findViewById(R.id.badge)!!
 
         actionView.setOnClickListener {
-            notificationsCounter = 0
+            NotificationsManager.newMessages = 0
             invalidateOptionsMenu()
             onOptionsItemSelected(notifications)
         }
@@ -100,8 +118,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        if (notificationsCounter > 0)
-            notificationBadge.setNumber(notificationsCounter)
+        if (NotificationsManager.newMessages > 0)
+            notificationBadge.setNumber(NotificationsManager.newMessages)
         else
             notificationBadge.clear()
         return super.onPrepareOptionsMenu(menu)
@@ -115,11 +133,6 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.notifications -> {
                 moveToNotifications()
-                true
-            }
-            R.id.increase -> {
-                notificationsCounter++
-                invalidateOptionsMenu()
                 true
             }
             else -> super.onOptionsItemSelected(item)

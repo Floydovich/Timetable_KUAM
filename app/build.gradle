@@ -4,11 +4,13 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'com.google.gms.google-services'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId 'com.floydovich.timetable_kuam'
+        applicationId 'com.it_club.timetable_kuam'
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
@@ -43,4 +45,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.github.chivorns:smartmaterialspinner:1.1.6'
     implementation 'com.nex3z:notification-badge:1.0.2'
+    implementation 'com.google.firebase:firebase-messaging:20.1.2'
 }
