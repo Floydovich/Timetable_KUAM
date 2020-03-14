@@ -13,8 +13,4 @@
         android:title="Уведомления"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/subscribeToTopic"
-        android:title="Подписаться на уведомления" />
-
 </menu>

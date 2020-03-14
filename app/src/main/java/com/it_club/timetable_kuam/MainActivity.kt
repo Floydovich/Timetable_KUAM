@@ -153,18 +153,6 @@ class MainActivity : AppCompatActivity() {
                 moveToNotifications()
                 true
             }
-//            R.id.subscribeToTopic -> {
-//                FirebaseMessaging.getInstance().subscribeToTopic("test2")
-//                    .addOnCompleteListener { task ->
-//                        var msg = "Subscribed to test2."
-//                        if (!task.isSuccessful) {
-//                            msg = "Failed to subscribe to test2."
-//                        }
-//                        Log.d("FirebaseMsgService", msg)
-//                        Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
-//                    }
-//                true
-//            }
             else -> super.onOptionsItemSelected(item)
         }
     }
