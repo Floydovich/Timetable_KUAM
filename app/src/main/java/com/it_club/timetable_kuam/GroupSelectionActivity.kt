@@ -1,10 +1,14 @@
 package com.it_club.timetable_kuam
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
+import com.it_club.timetable_kuam.utils.GROUP_NAME
+import com.it_club.timetable_kuam.utils.SPEC_NAME
 import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.content_group_selection.*
 
@@ -36,13 +40,13 @@ class GroupSelectionActivity : AppCompatActivity() {
         Устанавливает содержимое списка выбора специальностей и задаёт им датчики выбора
         onItemSelectedListener. Для спиннера групп также задаётся датчик клика setOnEmptySpinnerClickListener.
          */
-        spinnerSpecs.item = specs
+        spinnerSpec.item = specs
 
-        spinnerGroups.setOnEmptySpinnerClickListener {
-            spinnerGroups.errorText = "Сначала выберите специальность"
+        spinnerGroup.setOnEmptySpinnerClickListener {
+            spinnerGroup.errorText = "Сначала выберите специальность"
         }
 
-        spinnerSpecs.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinnerSpec.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
 
@@ -56,22 +60,22 @@ class GroupSelectionActivity : AppCompatActivity() {
                 Меняет текст ошибок у спиннеров, если был сделан выбор. Также выбор специальности,
                 заполняет список групп.
                  */
-                spinnerSpecs.errorText = " "
+                spinnerSpec.errorText = " "
 
-                if (spinnerGroups.errorText == "Сначала выберите специальность")
-                    spinnerGroups.errorText = " "
+                if (spinnerGroup.errorText == "Сначала выберите специальность")
+                    spinnerGroup.errorText = " "
 
                 /*
                 Метод list возвращает массив из названий файлов в папке assets/specs/<специальность>.
                 При нажатии передаётся порядковый номер специальности в спиннере, что позволяет получить
                 название из массива всех специальностей и добавить в путь.
                  */
-                spinnerGroups.item = assets.list("specs/${specs[position]}")!!
+                spinnerGroup.item = assets.list("specs/${specs[position]}")!!
                     .map { name -> name.dropLast(5) }  // убирает .json из названий групп
             }
         }
 
-        spinnerGroups.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinnerGroup.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
 
@@ -81,8 +85,8 @@ class GroupSelectionActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                spinnerSpecs.errorText = " "
-                spinnerGroups.errorText = " "
+                spinnerSpec.errorText = " "
+                spinnerGroup.errorText = " "
             }
         }
     }
@@ -94,31 +98,19 @@ class GroupSelectionActivity : AppCompatActivity() {
         Если они не выбраны, появляется сообщение об ошибке.
         */
         button.setOnClickListener {
-            val spec = spinnerSpecs.selectedItem
-            val group = spinnerGroups.selectedItem
+            val spec = spinnerSpec.selectedItem
+            val group = spinnerGroup.selectedItem
 
             if (spec != null && group != null) {
-                moveToTimetableWithSpecAndGroup(
-                    spinnerSpecs.selectedItem.toString(),
-                    spinnerGroups.selectedItem.toString()
-                )
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra(SPEC_NAME, spec.toString())
+                intent.putExtra(GROUP_NAME, group.toString())
+                setResult(Activity.RESULT_OK, intent)
+                finish()
             } else {
-                if (spec == null) spinnerSpecs.errorText = "Вы не выбрали специальность"
-                if (group == null) spinnerGroups.errorText = "Вы не выбрали группу"
+                if (spec == null) spinnerSpec.errorText = "Вы не выбрали специальность"
+                if (group == null) spinnerGroup.errorText = "Вы не выбрали группу"
             }
         }
-    }
-
-    private fun moveToTimetableWithSpecAndGroup(spec: String, group: String) {
-        /*
-        Переход в расписание. В специальный класс Intent указывается контекст, то есть данная
-        активити (откуда) и MainActivity как класс (куда). Метод putExtra помещается внутрь класса
-        название специальности и группы. Intent передаётся функции startActivity для перехода.
-         */
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("SPEC_NAME", spec)
-        intent.putExtra("GROUP_NAME", group)
-        startActivity(intent)
-        finish()  // если не стереть будет белый экран при возврате назад при первом входе
     }
 }

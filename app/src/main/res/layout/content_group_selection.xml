@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.itclub.timetable_kuam.GroupSelectionActivity"
+    tools:context="com.it_club.timetable_kuam.GroupSelectionActivity"
     tools:showIn="@layout/activity_group_selection">
 
     <Button
@@ -19,12 +19,12 @@
         android:text="@string/select"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/spinnerGroups"
-        app:layout_constraintStart_toStartOf="@+id/spinnerGroups"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerGroups" />
+        app:layout_constraintEnd_toEndOf="@+id/spinnerGroup"
+        app:layout_constraintStart_toStartOf="@+id/spinnerGroup"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerGroup" />
 
     <com.chivorn.smartmaterialspinner.SmartMaterialSpinner
-        android:id="@+id/spinnerSpecs"
+        android:id="@+id/spinnerSpec"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -54,7 +54,7 @@
         app:smsp_selectedItemListColor="#3F51B5" />
 
     <com.chivorn.smartmaterialspinner.SmartMaterialSpinner
-        android:id="@+id/spinnerGroups"
+        android:id="@+id/spinnerGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -62,9 +62,9 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        app:layout_constraintEnd_toEndOf="@+id/spinnerSpecs"
-        app:layout_constraintStart_toStartOf="@+id/spinnerSpecs"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerSpecs"
+        app:layout_constraintEnd_toEndOf="@+id/spinnerSpec"
+        app:layout_constraintStart_toStartOf="@+id/spinnerSpec"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerSpec"
         app:smsp_alwaysShowFloatingLabel="true"
         app:smsp_enableErrorLabel="true"
         app:smsp_enableFloatingLabel="false"
