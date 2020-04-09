@@ -1,28 +1,36 @@
 package com.it_club.timetable_kuam.services
 
+import android.content.BroadcastReceiver
+import android.content.Intent
 import android.util.Log
-import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.it_club.timetable_kuam.MainActivity
 import com.it_club.timetable_kuam.model.NotificationItem
 import com.it_club.timetable_kuam.model.NotificationsManager
-import java.io.File
 
 class TimetableFirebaseMessagingService : FirebaseMessagingService() {
 
+    private lateinit var broadcaster: LocalBroadcastManager
+
+    override fun onCreate() {
+        broadcaster = LocalBroadcastManager.getInstance(this)
+        Log.d("fcm", "The broadcasrter is: ${broadcaster.toString()}")
+    }
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d(TAG, "Message is received from ${remoteMessage.from}")
+        Log.d("fcm", "Message received.")
+        Log.d("fcm", remoteMessage.data["body"].toString())
 
-        val title = remoteMessage.notification?.title
-        val body = remoteMessage.notification?.body
-        val data = remoteMessage.data["test"]
-        Log.d(TAG, "Notification data: $data")
+        val notification = remoteMessage.notification
+        // Add message to all notifications
+        if (notification != null)
+            NotificationsManager.notifications.add(NotificationItem(notification.title, notification.body))
+        Log.d("fcm", "Added notification from remote message: ${NotificationsManager.notifications}")
 
-        NotificationsManager.newMessages++
-        Log.d(TAG, "New notifications: ${NotificationsManager.newMessages}")
-
-        Log.d(TAG, "Notification title: ${title}")
-        Log.d(TAG, "Notification body: ${body}")
+        val intent = Intent("New notification")
+        broadcaster.sendBroadcast(intent)
     }
 
     override fun onNewToken(token: String) {
@@ -30,6 +38,6 @@ class TimetableFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     companion object {
-        const val TAG = "FirebaseMsgService"
+        const val TAG = "fcm"
     }
 }
