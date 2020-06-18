@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.day_fragment.*
 @Suppress("UNCHECKED_CAST")
 class DayFragment : Fragment() {
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -31,6 +32,10 @@ class DayFragment : Fragment() {
 
     companion object {
         fun newInstance(timetable: List<ClassItem>): DayFragment {
+            /*
+            Pass the timetable in bundle, since if it is passed to a property, the app will crash
+            on the display reverting.
+             */
             val fragment = DayFragment()
             val arguments = Bundle()
 
