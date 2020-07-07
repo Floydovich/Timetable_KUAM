@@ -14,7 +14,6 @@ import kotlinx.android.synthetic.main.day_fragment.*
 @Suppress("UNCHECKED_CAST")
 class DayFragment : Fragment() {
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

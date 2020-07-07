@@ -21,7 +21,7 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
-    private var spec: String? = "IS"
+    private var spec: String? = "is"
     private var group: String? = "32"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,9 +30,22 @@ class MainActivity : AppCompatActivity() {
 
         val db = Firebase.firestore
 
-        title = group  // устанавливает заголовок в верхней панели
+        db.collection(spec + group)
+            .get()
+            .addOnSuccessListener { result ->
+                val timetable: List<ClassItem> = result.toObjects(ClassItem::class.java)
+                timetable.forEach { Log.d(TAG, it.name) }
+                fillTimetable(timetable)
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+            }
 
-        viewPager.adapter = DaysAdapter(listOf(), this)
+        title = group  // устанавливает заголовок в верхней панели
+    }
+
+    private fun fillTimetable(timetable: List<ClassItem>) {
+        viewPager.adapter = DaysAdapter(timetable, this)
         viewPager.offscreenPageLimit = 4  // загружает по 3 страницы слева и справа от текущей
         viewPager.setCurrentItem(setDay(), false)
 
@@ -89,6 +102,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val TAG = "Main Activity"
+        const val TAG = "MainActivity"
     }
 }
