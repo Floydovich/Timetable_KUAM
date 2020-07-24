@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "590972915189",
-    "firebase_url": "https://timetablekuam-104f6.firebaseio.com",
-    "project_id": "timetablekuam-104f6",
-    "storage_bucket": "timetablekuam-104f6.appspot.com"
+    "project_number": "1003428983491",
+    "firebase_url": "https://rasp-kuam.firebaseio.com",
+    "project_id": "rasp-kuam",
+    "storage_bucket": "rasp-kuam.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:590972915189:android:894a910e0b7374cd04a4bc",
+        "mobilesdk_app_id": "1:1003428983491:android:b701cbdba8e928d496e876",
         "android_client_info": {
           "package_name": "com.it_club.timetable_kuam"
         }
       },
       "oauth_client": [
         {
-          "client_id": "590972915189-b9acr29ehak6jvooeqbd6vtcovsp489h.apps.googleusercontent.com",
+          "client_id": "1003428983491-e7lnajpl04g8skb2angtfc32a8qg86sd.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAcYxx5thzVq5aJ9PyMxE3zM0YRsZO2cHA"
+          "current_key": "AIzaSyAzNsD92PPwLtOQ2a5vLgXRJ3-zm-6Ymus"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "590972915189-b9acr29ehak6jvooeqbd6vtcovsp489h.apps.googleusercontent.com",
+              "client_id": "1003428983491-e7lnajpl04g8skb2angtfc32a8qg86sd.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

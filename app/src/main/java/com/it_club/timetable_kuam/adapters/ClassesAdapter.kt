@@ -14,13 +14,12 @@ import kotlinx.android.synthetic.main.item_class.view.name
 import kotlinx.android.synthetic.main.item_class.view.place
 import kotlinx.android.synthetic.main.item_class.view.prof
 import kotlinx.android.synthetic.main.item_class.view.number
-import kotlinx.android.synthetic.main.item_class_blink.view.*
 
 class ClassesAdapter(private val classes: Array<ClassItem>)
     : RecyclerView.Adapter<ClassesAdapter.BaseViewHolder<ClassItem>>() {
 
     // Возвращает количество предметов для заполнения адаптера
-    override fun getItemCount() = 1
+    override fun getItemCount() = classes.size
 
 //     Возвращает количество названий в конкретной паре, чтобы определить какой layout показывать
 //    override fun getItemViewType(position: Int) = classes[position].name.size
@@ -94,7 +93,7 @@ class ClassesAdapter(private val classes: Array<ClassItem>)
             нужным кодом: вызов функций для заполнения полей layout и смена фона для блока времени
             в пустых парах.
              */
-            setTimeAndNumber(item.id)
+            setTimeAndNumber(item.class_id)
             setTexts(item.name, item.prof, item.place)
 
 //            if (item.name[0] == " ")
@@ -122,7 +121,7 @@ class ClassesAdapter(private val classes: Array<ClassItem>)
 //        }
 
         override fun bind(item: ClassItem) {
-            setTimeAndNumber(item.id)
+            setTimeAndNumber(item.class_id)
 
             setTexts(item.name, item.prof, item.place)
 

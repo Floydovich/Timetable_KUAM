@@ -8,7 +8,7 @@ import com.it_club.timetable_kuam.model.ClassItem
 
 class DaysAdapter(timetable: List<ClassItem>, fa: FragmentActivity) : FragmentStateAdapter(fa) {
 
-    private val classesGroupedByDay = timetable.groupBy { it.day }
+    private val classesGroupedByDay = timetable.groupBy { it.day_id }
 
     override fun getItemCount() = 5
 
