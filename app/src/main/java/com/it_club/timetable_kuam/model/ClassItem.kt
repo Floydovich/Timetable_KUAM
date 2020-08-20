@@ -6,6 +6,7 @@ import kotlinx.android.parcel.Parcelize
 // Указывает что этот класс создан для передачи между активити и сохранения в Bundle
 @Parcelize
 data class ClassItem(
+    val week_id: Int = 0,
     val day_id: Int = 0,
     val class_id: Int = 0,
     val name: String = "",

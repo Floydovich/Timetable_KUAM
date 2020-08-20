@@ -16,15 +16,19 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private var group: String = "Ю-22-3"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val db = Firebase.firestore
+        // TODO: Get chair and group from Selection Activity
+        val chair = "Информационные системы"
+        val group = "ИС-42"
 
-        db.collection(group)
+        title = group
+
+        Firebase.firestore.collection(chair)
+            .document(group)
+            .collection("Расписание-1")
             .get()
             .addOnSuccessListener { result ->
                 fillTimetable(result.toObjects(ClassItem::class.java))
@@ -32,8 +36,6 @@ class MainActivity : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents.", exception)
             }
-
-        title = group
     }
 
     private fun fillTimetable(timetable: List<ClassItem>) {
