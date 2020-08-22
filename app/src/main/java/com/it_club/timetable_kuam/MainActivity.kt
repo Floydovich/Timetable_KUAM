@@ -1,5 +1,6 @@
 package com.it_club.timetable_kuam
 
+import android.app.Activity
 import android.content.*
 import android.os.Bundle
 import android.util.Log
@@ -16,26 +17,39 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    private var chair: String? = null
+    private var group: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // TODO: Get chair and group from Selection Activity
-        val chair = "Информационные системы"
-        val group = "ИС-42"
+        startActivityForResult(Intent(this, GroupSelectionActivity::class.java), GROUP_SELECTION_REQUEST_CODE)
 
         title = group
 
-        Firebase.firestore.collection(chair)
-            .document(group)
-            .collection("Расписание-1")
-            .get()
-            .addOnSuccessListener { result ->
-                fillTimetable(result.toObjects(ClassItem::class.java))
+//        Firebase.firestore.collection(chair)
+//            .document(group)
+//            .collection("Расписание-1")
+//            .get()
+//            .addOnSuccessListener { result ->
+//                fillTimetable(result.toObjects(ClassItem::class.java))
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.w(TAG, "Error getting documents.", exception)
+//            }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == GROUP_SELECTION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                chair = data?.getStringExtra(SPEC_NAME)
+                group = data?.getStringExtra(GROUP_NAME)
+                Log.d(TAG, "Got chair and group: $chair $group")
             }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents.", exception)
-            }
+        }
     }
 
     private fun fillTimetable(timetable: List<ClassItem>) {

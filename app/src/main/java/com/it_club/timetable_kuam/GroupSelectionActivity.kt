@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.content_group_selection.*
 
 class GroupSelectionActivity : AppCompatActivity() {
 
-    private lateinit var specs: List<String>
+    private lateinit var chairs: List<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         /*
@@ -27,7 +27,19 @@ class GroupSelectionActivity : AppCompatActivity() {
         setContentView(R.layout.activity_group_selection)
         setSupportActionBar(toolbar)
 
-        specs = assets.list("specs")!!.toList()
+        chairs = listOf(
+            "Дизайн и КДР",
+            "Ин.яз. и Переводческое дело",
+            "ИС и Информатика",
+            "МО, История и СР",
+            "ОПДЭТ И ПО",
+            "Соц.-пед. дисциплины",
+            "Туризм, НВП и ФкС",
+            "Учет и Управление",
+            "Финансы",
+            "Экология и БЖиЗОС",
+            "Юриспруденция"
+        )
 
         initSpinners()
 
@@ -39,13 +51,13 @@ class GroupSelectionActivity : AppCompatActivity() {
         Устанавливает содержимое списка выбора специальностей и задаёт им датчики выбора
         onItemSelectedListener. Для спиннера групп также задаётся датчик клика setOnEmptySpinnerClickListener.
          */
-        spinnerSpec.item = specs
+        spinnerChair.item = chairs
 
         spinnerGroup.setOnEmptySpinnerClickListener {
             spinnerGroup.errorText = "Сначала выберите специальность"
         }
 
-        spinnerSpec.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinnerChair.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
 
@@ -59,17 +71,17 @@ class GroupSelectionActivity : AppCompatActivity() {
                 Меняет текст ошибок у спиннеров, если был сделан выбор. Также выбор специальности,
                 заполняет список групп.
                  */
-                spinnerSpec.errorText = " "
+                spinnerChair.errorText = " "
 
                 if (spinnerGroup.errorText == "Сначала выберите специальность")
                     spinnerGroup.errorText = " "
 
                 /*
-                Метод list возвращает массив из названий файлов в папке assets/specs/<специальность>.
+                Метод list возвращает массив из названий файлов в папке assets/chairs/<специальность>.
                 При нажатии передаётся порядковый номер специальности в спиннере, что позволяет получить
                 название из массива всех специальностей и добавить в путь.
                  */
-                spinnerGroup.item = assets.list("specs/${specs[position]}")!!
+                spinnerGroup.item = assets.list("chairs/${chairs[position]}")!!
                     .map { name -> name.dropLast(5) }  // убирает .json из названий групп
             }
         }
@@ -84,7 +96,7 @@ class GroupSelectionActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                spinnerSpec.errorText = " "
+                spinnerChair.errorText = " "
                 spinnerGroup.errorText = " "
             }
         }
@@ -97,7 +109,7 @@ class GroupSelectionActivity : AppCompatActivity() {
         Если они не выбраны, появляется сообщение об ошибке.
         */
         button.setOnClickListener {
-            val spec = spinnerSpec.selectedItem
+            val spec = spinnerChair.selectedItem
             val group = spinnerGroup.selectedItem
 
             if (spec != null && group != null) {
@@ -107,7 +119,7 @@ class GroupSelectionActivity : AppCompatActivity() {
                 setResult(Activity.RESULT_OK, intent)
                 finish()
             } else {
-                if (spec == null) spinnerSpec.errorText = "Вы не выбрали специальность"
+                if (spec == null) spinnerChair.errorText = "Вы не выбрали специальность"
                 if (group == null) spinnerGroup.errorText = "Вы не выбрали группу"
             }
         }
