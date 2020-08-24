@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Расписание beta</string>
+    <string name="app_name">TimetableKUAM beta</string>
     <string name="title_activity_group_selection">Расписание beta</string>
-    <string name="select">Выбрать</string>
+    <string name="select">Открыть расписание</string>
     <string name="empty_error"> </string>
     <string name="default_notification_channel_id">raspkuam</string>
 </resources>

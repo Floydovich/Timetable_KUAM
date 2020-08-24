@@ -24,12 +24,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // TODO: Start activity for result before layout is loaded
         startActivityForResult(Intent(this, GroupSelectionActivity::class.java), GROUP_SELECTION_REQUEST_CODE)
 
         title = group
 
-//        Firebase.firestore.collection(chair)
-//            .document(group)
+//        Firebase.firestore.collection(chair.toString())
+//            .document(group.toString())
 //            .collection("Расписание-1")
 //            .get()
 //            .addOnSuccessListener { result ->
@@ -45,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == GROUP_SELECTION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                chair = data?.getStringExtra(SPEC_NAME)
+                chair = data?.getStringExtra(CHAIR_NAME)
                 group = data?.getStringExtra(GROUP_NAME)
                 Log.d(TAG, "Got chair and group: $chair $group")
             }
