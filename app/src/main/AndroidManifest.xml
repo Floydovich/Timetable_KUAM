@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".GroupSelectionActivity"
+            android:name=".SelectionActivity"
             android:label="@string/title_activity_group_selection"
             android:theme="@style/AppTheme.NoActionBar" />
 

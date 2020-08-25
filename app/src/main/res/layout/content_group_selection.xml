@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.it_club.timetable_kuam.GroupSelectionActivity"
+    tools:context="com.it_club.timetable_kuam.SelectionActivity"
     tools:showIn="@layout/activity_group_selection">
 
     <Button
