@@ -7,8 +7,10 @@ import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.it_club.timetable_kuam.adapters.DaysAdapter
-import com.it_club.timetable_kuam.db.FirestoreService
 import com.it_club.timetable_kuam.model.ClassItem
 import com.it_club.timetable_kuam.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,30 +19,34 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
-    private var chair: String? = null
-    private var group: String? = null
-    private var isBlinking: Boolean = false
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sharedPreferences = getSharedPreferences(USER_FILE, MODE)
-        chair = sharedPreferences.getString(CHAIR_NAME, null)
-        group = sharedPreferences.getString(GROUP_NAME, null)
-        isBlinking = sharedPreferences.getBoolean(IS_BLINKING, isBlinking)
+        db = Firebase.firestore
 
-        if (chair == null && group == null) {
-            moveToSelectionActivity()
-        } else {
-            getTimetable()
+        sharedPreferences = getSharedPreferences(USER_FILE, MODE)
+        val chair = sharedPreferences.getString(CHAIR_NAME, null)
+        val group = sharedPreferences.getString(GROUP_NAME, null)
+        val isBlinking = sharedPreferences.getBoolean(IS_BLINKING, false)
+
+        if (chair != null && group != null) {
+            getTimetable(chair, group, isBlinking)
             title = group
+        } else {
+            moveToSelectionActivity()
         }
 
         setContentView(R.layout.activity_main)
     }
 
-    private fun getTimetable() {
-        FirestoreService.timetable(chair!!, group!!)
+    private fun getTimetable(chair: String, group: String, isBlinking: Boolean) {
+        val weekId = if (isBlinking) 1 else 0
+        db.collection(chair)
+            .document(group)
+            .collection(FIRST_HALF)
+            .whereEqualTo("week_id", weekId)
             .get()
             .addOnSuccessListener { result ->
                 fillTimetable(result.toObjects(ClassItem::class.java))
@@ -53,11 +59,13 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        Log.d(TAG, ">>>> On activity result called")
+
         if (requestCode == SELECTION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                chair = data?.getStringExtra(CHAIR_NAME)
-                group = data?.getStringExtra(GROUP_NAME)
-                isBlinking = data?.getBooleanExtra(IS_BLINKING, false)!!
+                val group = data?.getStringExtra(GROUP_NAME)
+                val chair = data?.getStringExtra(CHAIR_NAME)
+                val isBlinking = data?.getBooleanExtra(IS_BLINKING, false)!!
 
                 sharedPreferences.edit().apply {
                     putString(CHAIR_NAME, chair)
@@ -66,15 +74,14 @@ class MainActivity : AppCompatActivity() {
                     apply()
                 }
 
-                val classItemArray = data.getParcelableArrayExtra(CLASS_ITEM_ARRAY)
-                @Suppress("UNCHECKED_CAST")
-                fillTimetable(classItemArray?.toList() as List<ClassItem>)
+                getTimetable(chair!!, group!!, isBlinking)
                 title = group
             }
         }
     }
 
     private fun fillTimetable(timetable: List<ClassItem>) {
+        Log.d(TAG, ">>>> fill timetable")
         viewPager.adapter = DaysAdapter(timetable, this)
         viewPager.offscreenPageLimit = 4
         viewPager.setCurrentItem(onToday(), false)

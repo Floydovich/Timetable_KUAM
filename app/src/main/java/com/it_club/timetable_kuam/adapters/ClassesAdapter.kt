@@ -5,9 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.it_club.timetable_kuam.R
 import com.it_club.timetable_kuam.model.ClassItem
-import com.it_club.timetable_kuam.utils.TimeUtils
+import com.it_club.timetable_kuam.utils.getEndTime
+import com.it_club.timetable_kuam.utils.getStartTime
 import com.it_club.timetable_kuam.utils.inflate
-import kotlinx.android.synthetic.main.item_class.view.timebox
 import kotlinx.android.synthetic.main.item_class.view.startTime
 import kotlinx.android.synthetic.main.item_class.view.endTime
 import kotlinx.android.synthetic.main.item_class.view.name
@@ -40,8 +40,8 @@ class ClassesAdapter(private val classes: Array<ClassItem>)
             /*
             Устанавливает поля времен и номер пары, используя методы класса TimeUtils
              */
-            itemView.startTime.text = TimeUtils.getStartTime(id)
-            itemView.endTime.text = TimeUtils.getEndTime(id)
+            itemView.startTime.text = getStartTime(id)
+            itemView.endTime.text = getEndTime(id)
             itemView.number.text = (id + 1).toString()
         }
 

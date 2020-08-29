@@ -7,17 +7,17 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
-import com.it_club.timetable_kuam.db.FirestoreService
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.it_club.timetable_kuam.model.ClassItem
-import com.it_club.timetable_kuam.utils.GROUP_NAME
-import com.it_club.timetable_kuam.utils.CHAIR_NAME
-import com.it_club.timetable_kuam.utils.IS_BLINKING
-import com.it_club.timetable_kuam.utils.CLASS_ITEM_ARRAY
+import com.it_club.timetable_kuam.utils.*
 import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.content_group_selection.*
 
 class SelectionActivity : AppCompatActivity() {
 
+    private lateinit var db: FirebaseFirestore
     private val chairs = listOf(
         "Дизайн и КДР",
         "Ин.яз. и Переводческое дело",
@@ -33,20 +33,19 @@ class SelectionActivity : AppCompatActivity() {
         "Юриспруденция"
     )
     // Groups will be loaded when user selects a chair from chairSpinner
-    private lateinit var groups: List<String>
+    private var groups = listOf<String>()
+    private var classItems = listOf<ClassItem>()
     private var selectedChair: String? = null
     private var selectedGroup: String? = null
     private var selectedGroupIsBlinking = false
-    private lateinit var classItems: List<ClassItem>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        db = Firebase.firestore
+
         setContentView(R.layout.activity_group_selection)
         setSupportActionBar(toolbar)
-
-        // How the firestore connection without the Internet will work?
-        Log.d(TAG, "Firestore connected: ${FirestoreService.db.firestoreSettings.toString()}")
 
         initSpinners()
         initButton()
@@ -84,7 +83,7 @@ class SelectionActivity : AppCompatActivity() {
 
                 selectedChair = chairs[position]
 
-                FirestoreService.chair(selectedChair!!)
+                db.collection(selectedChair!!)
                     .get()
                     .addOnSuccessListener { result ->
                         groups = result.documents.map { it.id }
@@ -113,7 +112,8 @@ class SelectionActivity : AppCompatActivity() {
             ) {
                 selectedGroup = groups[position]
 
-                FirestoreService.group(selectedChair!!, selectedGroup!!)
+                db.collection(selectedChair!!)
+                    .document(selectedGroup!!)
                     .get()
                     .addOnSuccessListener { result ->
                         Log.d(TAG, "The groups is blinking: ${result["is_blinking"]}")
@@ -121,15 +121,6 @@ class SelectionActivity : AppCompatActivity() {
                     }
                     .addOnFailureListener {
                         Log.w(TAG, "Error getting the document's field.")
-                    }
-
-                FirestoreService.timetable(selectedChair!!, selectedGroup!!)
-                    .get()
-                    .addOnSuccessListener { result ->
-                        classItems = result.toObjects(ClassItem::class.java)
-                    }
-                    .addOnFailureListener {
-                        Log.w(TAG, "Error getting the result objects.")
                     }
 
                 spinnerChair.errorText = ""
@@ -152,11 +143,11 @@ class SelectionActivity : AppCompatActivity() {
                 }
                 else -> {
                     val intent = Intent(this, MainActivity::class.java)
+
                     intent.apply {
                         putExtra(CHAIR_NAME, selectedChair)
                         putExtra(GROUP_NAME, selectedGroup)
                         putExtra(IS_BLINKING, selectedGroupIsBlinking)
-                        putExtra(CLASS_ITEM_ARRAY, classItems.toTypedArray())
                     }
 
                     setResult(Activity.RESULT_OK, intent)
