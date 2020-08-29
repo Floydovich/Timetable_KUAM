@@ -8,12 +8,12 @@ android {
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId 'com.it_club.timetable_kuam'
-        minSdkVersion 21
+        minSdkVersion 15
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-//        multiDexEnabled true
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -42,9 +42,13 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
 
     // Firebase packages
-    implementation 'com.google.firebase:firebase-analytics:17.4.4'
+    // Analytics requires API >= 16
+//    implementation 'com.google.firebase:firebase-analytics:17.4.4'
     implementation 'com.google.firebase:firebase-firestore-ktx:21.5.0'
 
     // Group selection
     implementation 'com.github.chivorns:smartmaterialspinner:1.1.6'
+
+    // Multidex support for devices below API 21. Avoid limitations of methods per app.
+    implementation 'androidx.multidex:multidex:2.0.1'
 }

@@ -14,7 +14,7 @@ import com.it_club.timetable_kuam.adapters.DaysAdapter
 import com.it_club.timetable_kuam.model.ClassItem
 import com.it_club.timetable_kuam.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
