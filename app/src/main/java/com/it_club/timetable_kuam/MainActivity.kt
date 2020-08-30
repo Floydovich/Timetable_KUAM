@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.*
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
@@ -20,36 +21,60 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var db: FirebaseFirestore
+    private var chair: String? = null
+    private var group: String? = null
+    private var isBlinking: Boolean = false
+    private var timetableWeek1 = listOf<ClassItem>()
+    private var timetableWeek2 = listOf<ClassItem>()
+    private var currentWeek: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         db = Firebase.firestore
-
         sharedPreferences = getSharedPreferences(USER_FILE, MODE)
-        val chair = sharedPreferences.getString(CHAIR_NAME, null)
-        val group = sharedPreferences.getString(GROUP_NAME, null)
-        val isBlinking = sharedPreferences.getBoolean(IS_BLINKING, false)
 
-        if (chair != null && group != null) {
-            getTimetable(chair, group, isBlinking)
-            title = group
-        } else {
+        chair = sharedPreferences.getString(CHAIR_NAME, null)
+        group = sharedPreferences.getString(GROUP_NAME, null)
+        isBlinking = sharedPreferences.getBoolean(IS_BLINKING, false)
+
+        isBlinking = true
+
+        currentWeek = savedInstanceState?.getInt(CURRENT_WEEK) ?: currentWeek
+
+        if (chair == null && group == null) {
             moveToSelectionActivity()
+        } else {
+            getTimetable()
+            title = group
         }
 
         setContentView(R.layout.activity_main)
     }
 
-    private fun getTimetable(chair: String, group: String, isBlinking: Boolean) {
-        val weekId = if (isBlinking) 1 else 0
-        db.collection(chair)
-            .document(group)
+    private fun getTimetable() {
+        if (isBlinking) {
+            val nextWeek = if (currentWeek == 0) 1 else 0
+            getTimetableForWeek(currentWeek)
+            getTimetableForWeek(nextWeek)
+        } else {
+            getTimetableForWeek(0)
+        }
+    }
+
+    private fun getTimetableForWeek(weekId: Int) {
+        db.collection(chair!!)
+            .document(group!!)
             .collection(FIRST_HALF)
             .whereEqualTo("week_id", weekId)
             .get()
             .addOnSuccessListener { result ->
-                fillTimetable(result.toObjects(ClassItem::class.java))
+                if (weekId == 0) {
+                    timetableWeek1 = result.toObjects(ClassItem::class.java)
+                    fillTimetable(timetableWeek1)
+                } else {
+                    timetableWeek2 = result.toObjects(ClassItem::class.java)
+                }
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents.", exception)
@@ -59,13 +84,11 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        Log.d(TAG, ">>>> On activity result called")
-
         if (requestCode == SELECTION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                val group = data?.getStringExtra(GROUP_NAME)
-                val chair = data?.getStringExtra(CHAIR_NAME)
-                val isBlinking = data?.getBooleanExtra(IS_BLINKING, false)!!
+                group = data?.getStringExtra(GROUP_NAME)
+                chair = data?.getStringExtra(CHAIR_NAME)
+                isBlinking = data?.getBooleanExtra(IS_BLINKING, false)!!
 
                 sharedPreferences.edit().apply {
                     putString(CHAIR_NAME, chair)
@@ -74,7 +97,7 @@ class MainActivity : AppCompatActivity() {
                     apply()
                 }
 
-                getTimetable(chair!!, group!!, isBlinking)
+                getTimetable()
                 title = group
             }
         }
@@ -109,14 +132,44 @@ class MainActivity : AppCompatActivity() {
             SELECTION_REQUEST_CODE)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        if (isBlinking) {
+            val item1 = menu?.findItem(R.id.switchToWeek1)
+            val item2 = menu?.findItem(R.id.switchToWeek2)
+            item1?.isVisible = true
+            item2?.isVisible = true
+        }
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.moveToGroupSelection -> {
                 moveToSelectionActivity()
                 true
             }
+            R.id.switchToWeek1 -> {
+                fillTimetable(timetableWeek1)
+                currentWeek = 0
+                true
+            }
+            R.id.switchToWeek2 -> {
+                fillTimetable(timetableWeek2)
+                currentWeek = 1
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(CURRENT_WEEK, currentWeek)
     }
 
     companion object {

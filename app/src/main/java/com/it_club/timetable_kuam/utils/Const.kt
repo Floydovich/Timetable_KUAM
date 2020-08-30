@@ -11,6 +11,7 @@ const val IS_BLINKING = "IS_BLINKING"
 const val FIRST_HALF = "Расписание-1"
 const val SECOND_HALF = "Расписание-2"
 const val CLASS_ITEM_ARRAY = "CLASS_ITEM_ARRAY"
+const val CURRENT_WEEK = "CURRENT_WEEK"
 
 const val ARG_TIMETABLE = "ARG_TIMETABLE"
 
