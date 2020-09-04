@@ -21,7 +21,6 @@ class SelectionActivity : AppCompatActivity() {
     private val chairs = listOf(
         "Дизайн и КДР",
         "Ин.яз. и Переводческое дело",
-//        "ИС и Информатика",
         "Информационные системы",
         "МО, История и СР",
         "ОПДЭТ и ПО",
@@ -116,8 +115,8 @@ class SelectionActivity : AppCompatActivity() {
                     .document(selectedGroup!!)
                     .get()
                     .addOnSuccessListener { result ->
-                        Log.d(TAG, "The groups is blinking: ${result["is_blinking"]}")
-                        selectedGroupIsBlinking = result["is_blinking"] as Boolean
+                        Log.d(TAG, "The groups is blinking: ${result["blinking"]}")
+                        selectedGroupIsBlinking = result["blinking"] as Boolean
                     }
                     .addOnFailureListener {
                         Log.w(TAG, "Error getting the document's field.")

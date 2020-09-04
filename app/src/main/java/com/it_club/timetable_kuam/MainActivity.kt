@@ -9,6 +9,8 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.it_club.timetable_kuam.adapters.DaysAdapter
@@ -19,8 +21,10 @@ import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var db: FirebaseFirestore
+    private lateinit var sp: SharedPreferences
+    private lateinit var registrationWeek1: ListenerRegistration
+    private lateinit var registrationWeek2: ListenerRegistration
     private var chair: String? = null
     private var group: String? = null
     private var isBlinking: Boolean = false
@@ -32,53 +36,64 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         db = Firebase.firestore
-        sharedPreferences = getSharedPreferences(USER_FILE, MODE)
+        sp = getSharedPreferences(USER_FILE, MODE)
 
-        chair = sharedPreferences.getString(CHAIR_NAME, null)
-        group = sharedPreferences.getString(GROUP_NAME, null)
-        isBlinking = sharedPreferences.getBoolean(IS_BLINKING, false)
-
-        isBlinking = true
+        chair = sp.getString(CHAIR_NAME, chair)
+        group = sp.getString(GROUP_NAME, group)
+        isBlinking = sp.getBoolean(IS_BLINKING, isBlinking)
 
         currentWeek = savedInstanceState?.getInt(CURRENT_WEEK) ?: currentWeek
 
         if (chair == null && group == null) {
             moveToSelectionActivity()
-        } else {
-            getTimetable()
-            title = group
         }
 
         setContentView(R.layout.activity_main)
     }
 
-    private fun getTimetable() {
-        if (isBlinking) {
-            val nextWeek = if (currentWeek == 0) 1 else 0
-            getTimetableForWeek(currentWeek)
-            getTimetableForWeek(nextWeek)
-        } else {
-            getTimetableForWeek(0)
-        }
+    private fun moveToSelectionActivity() {
+        startActivityForResult(Intent(this,
+            SelectionActivity::class.java),
+            SELECTION_REQUEST_CODE)
     }
 
-    private fun getTimetableForWeek(weekId: Int) {
-        db.collection(chair!!)
+    override fun onStart() {
+        super.onStart()
+        getTimetable()
+        title = group
+    }
+
+    private fun querySubCollection(): Query {
+        return db.collection(chair!!)
             .document(group!!)
             .collection(FIRST_HALF)
-            .whereEqualTo("week_id", weekId)
-            .get()
-            .addOnSuccessListener { result ->
-                if (weekId == 0) {
-                    timetableWeek1 = result.toObjects(ClassItem::class.java)
-                    fillTimetable(timetableWeek1)
-                } else {
-                    timetableWeek2 = result.toObjects(ClassItem::class.java)
+    }
+
+    private fun getTimetable() {
+        registrationWeek1 = querySubCollection()
+            .whereEqualTo("week_id", 0)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e)
+                    return@addSnapshotListener
                 }
+                Log.d(TAG, ">> timetable updated ${snapshots?.documentChanges}")
+                timetableWeek1 = snapshots?.toObjects(ClassItem::class.java) ?: timetableWeek1
+                fillTimetable(timetableWeek1)
             }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents.", exception)
-            }
+
+        if (isBlinking) {
+            registrationWeek2 = querySubCollection()
+                .whereEqualTo("week_id", 1)
+                .addSnapshotListener { snapshots, e ->
+                    if (e != null) {
+                        Log.w(TAG, "Listen failed.", e)
+                        return@addSnapshotListener
+                    }
+                    Log.d(TAG, ">> timetable updated")
+                    timetableWeek2 = snapshots?.toObjects(ClassItem::class.java) ?: timetableWeek1
+                }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -90,7 +105,7 @@ class MainActivity : AppCompatActivity() {
                 chair = data?.getStringExtra(CHAIR_NAME)
                 isBlinking = data?.getBooleanExtra(IS_BLINKING, false)!!
 
-                sharedPreferences.edit().apply {
+                sp.edit().apply {
                     putString(CHAIR_NAME, chair)
                     putString(GROUP_NAME, group)
                     putBoolean(IS_BLINKING, isBlinking)
@@ -107,6 +122,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, ">>>> fill timetable")
         viewPager.adapter = DaysAdapter(timetable, this)
         viewPager.offscreenPageLimit = 4
+        // Set smoothScroll to false to remove the setting animation when the app is opened
         viewPager.setCurrentItem(onToday(), false)
 
         TabLayoutMediator(tabs, viewPager) { tab, position ->
@@ -126,18 +142,19 @@ class MainActivity : AppCompatActivity() {
         return if (today < 5) today else 0
     }
 
-    private fun moveToSelectionActivity() {
-        startActivityForResult(Intent(this,
-            SelectionActivity::class.java),
-            SELECTION_REQUEST_CODE)
-    }
-
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         if (isBlinking) {
             val item1 = menu?.findItem(R.id.switchToWeek1)
             val item2 = menu?.findItem(R.id.switchToWeek2)
+
             item1?.isVisible = true
             item2?.isVisible = true
+
+            if (currentWeek == 0) {
+                item1?.isEnabled = false
+            } else {
+                item2?.isEnabled = false
+            }
         }
         return super.onPrepareOptionsMenu(menu)
     }
@@ -154,13 +171,19 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.switchToWeek1 -> {
-                fillTimetable(timetableWeek1)
-                currentWeek = 0
+                if (currentWeek != 0) {
+                    fillTimetable(timetableWeek1)
+                    currentWeek = 0
+                    invalidateOptionsMenu()
+                }
                 true
             }
             R.id.switchToWeek2 -> {
-                fillTimetable(timetableWeek2)
-                currentWeek = 1
+                if (currentWeek != 1) {
+                    fillTimetable(timetableWeek2)
+                    currentWeek = 1
+                    invalidateOptionsMenu()
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -170,6 +193,12 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(CURRENT_WEEK, currentWeek)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Detach DB real-time changes listener when the app is no longer active
+        registrationWeek1.remove()
     }
 
     companion object {
