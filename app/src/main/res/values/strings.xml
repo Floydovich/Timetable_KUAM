@@ -3,5 +3,5 @@
     <string name="title_activity_group_selection">Расписание beta</string>
     <string name="select">Открыть расписание</string>
     <string name="empty_error"> </string>
-    <string name="default_notification_channel_id">raspkuam</string>
+    <string name="descriptionUpdate">Notification that indicates a change in the timetable</string>
 </resources>

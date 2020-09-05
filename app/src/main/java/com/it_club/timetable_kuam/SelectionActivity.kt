@@ -117,6 +117,7 @@ class SelectionActivity : AppCompatActivity() {
                     .addOnSuccessListener { result ->
                         Log.d(TAG, "The groups is blinking: ${result["blinking"]}")
                         selectedGroupIsBlinking = result["blinking"] as Boolean
+                        Log.d(TAG,"Selected group is blinking: $selectedGroupIsBlinking")
                     }
                     .addOnFailureListener {
                         Log.w(TAG, "Error getting the document's field.")
