@@ -23,14 +23,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var sp: SharedPreferences
-    private lateinit var registrationWeek1: ListenerRegistration
-    private lateinit var registrationWeek2: ListenerRegistration
+    private lateinit var registration: ListenerRegistration
     private var chair: String? = null
     private var group: String? = null
     private var isBlinking: Boolean = false
-    private var timetableWeek1 = listOf<ClassItem>()
-    private var timetableWeek2 = listOf<ClassItem>()
     private var currentWeek: Int = 0
+    private var timetable = listOf<ClassItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,30 +68,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getTimetable() {
-        registrationWeek1 = querySubCollection()
-            .whereEqualTo("week_id", 0)
+        registration = querySubCollection()
+            .whereEqualTo("week_id", currentWeek)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
                     Log.w(TAG, "Listen failed.", e)
                     return@addSnapshotListener
                 }
-                Log.d(TAG, ">> timetable updated ${snapshots?.documentChanges}")
-                timetableWeek1 = snapshots?.toObjects(ClassItem::class.java) ?: timetableWeek1
-                fillTimetable(timetableWeek1)
-            }
 
-        if (isBlinking) {
-            registrationWeek2 = querySubCollection()
-                .whereEqualTo("week_id", 1)
-                .addSnapshotListener { snapshots, e ->
-                    if (e != null) {
-                        Log.w(TAG, "Listen failed.", e)
-                        return@addSnapshotListener
-                    }
-                    Log.d(TAG, ">> timetable updated")
-                    timetableWeek2 = snapshots?.toObjects(ClassItem::class.java) ?: timetableWeek1
+                if (snapshots != null) {
+                    timetable = snapshots.toObjects(ClassItem::class.java)
+                    fillTimetable()
                 }
-        }
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -113,13 +100,14 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 getTimetable()
+                // Refresh the top bar when the group is changed to blinking or vice versa
+                invalidateOptionsMenu()
                 title = group
             }
         }
     }
 
-    private fun fillTimetable(timetable: List<ClassItem>) {
-        Log.d(TAG, ">>>> fill timetable")
+    private fun fillTimetable() {
         viewPager.adapter = DaysAdapter(timetable, this)
         viewPager.offscreenPageLimit = 4
         // Set smoothScroll to false to remove the setting animation when the app is opened
@@ -135,11 +123,6 @@ class MainActivity : AppCompatActivity() {
                 else -> ""
             }
         }.attach()
-    }
-
-    private fun onToday(): Int {
-        val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2
-        return if (today < 5) today else 0
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
@@ -171,19 +154,15 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.switchToWeek1 -> {
-                if (currentWeek != 0) {
-                    fillTimetable(timetableWeek1)
-                    currentWeek = 0
-                    invalidateOptionsMenu()
-                }
+                currentWeek = 0
+                getTimetable()
+                invalidateOptionsMenu()
                 true
             }
             R.id.switchToWeek2 -> {
-                if (currentWeek != 1) {
-                    fillTimetable(timetableWeek2)
-                    currentWeek = 1
-                    invalidateOptionsMenu()
-                }
+                currentWeek = 1
+                getTimetable()
+                invalidateOptionsMenu()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -198,7 +177,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         // Detach DB real-time changes listener when the app is no longer active
-        registrationWeek1.remove()
+        registration.remove()
     }
 
     companion object {
