@@ -55,6 +55,30 @@ class MainActivity : AppCompatActivity() {
             SELECTION_REQUEST_CODE)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == SELECTION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                group = data?.getStringExtra(GROUP_NAME)
+                chair = data?.getStringExtra(CHAIR_NAME)
+                isBlinking = data?.getBooleanExtra(IS_BLINKING, false)!!
+
+                sp.edit().apply {
+                    putString(CHAIR_NAME, chair)
+                    putString(GROUP_NAME, group)
+                    putBoolean(IS_BLINKING, isBlinking)
+                    apply()
+                }
+
+                getTimetable()
+                // Refresh the top bar when the group is changed to blinking or vice versa
+                invalidateOptionsMenu()
+                title = group
+            }
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         getTimetable()
@@ -81,30 +105,6 @@ class MainActivity : AppCompatActivity() {
                     fillTimetable()
                 }
             }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == SELECTION_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                group = data?.getStringExtra(GROUP_NAME)
-                chair = data?.getStringExtra(CHAIR_NAME)
-                isBlinking = data?.getBooleanExtra(IS_BLINKING, false)!!
-
-                sp.edit().apply {
-                    putString(CHAIR_NAME, chair)
-                    putString(GROUP_NAME, group)
-                    putBoolean(IS_BLINKING, isBlinking)
-                    apply()
-                }
-
-                getTimetable()
-                // Refresh the top bar when the group is changed to blinking or vice versa
-                invalidateOptionsMenu()
-                title = group
-            }
-        }
     }
 
     private fun fillTimetable() {
