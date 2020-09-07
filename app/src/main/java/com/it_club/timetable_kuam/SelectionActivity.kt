@@ -7,10 +7,8 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.it_club.timetable_kuam.model.ClassItem
 import com.it_club.timetable_kuam.utils.*
 import kotlinx.android.synthetic.main.activity_group_selection.*
 import kotlinx.android.synthetic.main.content_group_selection.*
@@ -20,9 +18,8 @@ class SelectionActivity : AppCompatActivity() {
     private val db = Firebase.firestore
     // Groups will be loaded when user selects a chair from chairSpinner
     private var groups = listOf<String>()
-    private var selectedChair: String? = null
-    private var selectedGroup: String? = null
-    private var selectedGroupIsBlinking = false
+    private var chair: String? = null
+    private var group: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,10 +61,9 @@ class SelectionActivity : AppCompatActivity() {
                     showFloatingLabel()
                 }
 
-                selectedChair = chairs[position]
+                chair = chairs[position]
 
-                db.collection(selectedChair!!)
-                    .get()
+                db.collection(chair!!).get()
                     .addOnSuccessListener { result ->
                         groups = result.documents.map { it.id }
                         spinnerGroup.apply {
@@ -77,7 +73,7 @@ class SelectionActivity : AppCompatActivity() {
                         }
                     }
                     .addOnFailureListener { exception ->
-                        // It works without connection. DB is saved in cache?
+                        // QUESTION: It works without connection. DB is saved in cache?
                         Log.d(TAG, "Error getting documents", exception)
                     }
             }
@@ -93,19 +89,7 @@ class SelectionActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                selectedGroup = groups[position]
-
-                db.collection(selectedChair!!)
-                    .document(selectedGroup!!)
-                    .get()
-                    .addOnSuccessListener { result ->
-                        Log.d(TAG, "The groups is blinking: ${result["blinking"]}")
-                        selectedGroupIsBlinking = result["blinking"] as Boolean
-                        Log.d(TAG,"Selected group is blinking: $selectedGroupIsBlinking")
-                    }
-                    .addOnFailureListener {
-                        Log.w(TAG, "Error getting the document's field.")
-                    }
+                group = groups[position]
 
                 spinnerChair.errorText = ""
                 spinnerGroup.apply {
@@ -119,19 +103,18 @@ class SelectionActivity : AppCompatActivity() {
     private fun initButton() {
         button.setOnClickListener {
             when {
-                selectedChair == null -> {
+                chair == null -> {
                     spinnerChair.errorText = "Выберите кафедру"
                 }
-                selectedGroup == null -> {
+                group == null -> {
                     spinnerGroup.errorText = "Выберите группу"
                 }
                 else -> {
                     val intent = Intent(this, MainActivity::class.java)
 
                     intent.apply {
-                        putExtra(CHAIR_NAME, selectedChair)
-                        putExtra(GROUP_NAME, selectedGroup)
-                        putExtra(IS_BLINKING, selectedGroupIsBlinking)
+                        putExtra(CHAIR_NAME, chair)
+                        putExtra(GROUP_NAME, group)
                     }
 
                     setResult(Activity.RESULT_OK, intent)

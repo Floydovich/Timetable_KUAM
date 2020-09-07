@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     private var group: String? = null
     private var isBlinking: Boolean = false
     private var currentWeek: Int = 0
-    private var timetable = listOf<ClassItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,19 +61,34 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 group = data?.getStringExtra(GROUP_NAME)
                 chair = data?.getStringExtra(CHAIR_NAME)
-                isBlinking = data?.getBooleanExtra(IS_BLINKING, false)!!
 
-                sp.edit().apply {
-                    putString(CHAIR_NAME, chair)
-                    putString(GROUP_NAME, group)
-                    putBoolean(IS_BLINKING, isBlinking)
-                    apply()
-                }
+                // Set the week to 0 due to a bug of switching a blinking group with II enabled
+                // to a non-blinking group
+                currentWeek = 0
 
-                getTimetable()
-                title = group
-                // Refresh the app bar to show I and II when the group is changed to a blinking one
-                invalidateOptionsMenu()
+                // Check if the group is blinking immediately after coming from Selection
+                // activity
+                db.collection(chair!!)
+                    .document(group!!)
+                    .get()
+                    .addOnSuccessListener { result ->
+                        isBlinking = result["blinking"] as Boolean
+
+                        // Schedule the save to sharedPrefs when the blinking fieild is got to
+                        // avoid saving false for blinking
+                        sp.edit().apply {
+                            putString(CHAIR_NAME, chair)
+                            putString(GROUP_NAME, group)
+                            putBoolean(IS_BLINKING, isBlinking)
+                            apply()
+                        }
+
+                        // Refresh the app bar to show I and II when the group is changed to a blinking one
+                        invalidateOptionsMenu()
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e(TAG, "Error on getting blinking field: $exception.")
+                    }
             }
         }
     }
@@ -82,12 +96,18 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         // Start the registration listener every time the user opens the app from the background.
-        getTimetable()
-        title = group
+        if (chair != null && group != null) {
+            getTimetable()
+            title = group
+        }
     }
 
     private fun getTimetable() {
-        db.collection("$chair/$group/$FIRST_HALF")
+        /*
+        Call Firestore DB to get a timetable with a current week id. Also this method is called
+        when the user changes the group or when they changes the week.
+         */
+        db.timetableForTerm(chair!!, group!!)
             .whereEqualTo("week_id", currentWeek)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
@@ -97,7 +117,11 @@ class MainActivity : AppCompatActivity() {
 
                 if (snapshots != null) {
                     fillTimetable(snapshots.toObjects(ClassItem::class.java))
-                    notifyChanges(this, "Изменение в расписании", snapshots.documentChanges)
+
+                    // Check the documentChanges list and send notifications for a changed document
+                    notifyChanges(this,
+                        "Изменение в расписании",
+                        snapshots.documentChanges)
                 }
             }
     }
