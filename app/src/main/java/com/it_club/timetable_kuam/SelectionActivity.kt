@@ -17,31 +17,15 @@ import kotlinx.android.synthetic.main.content_group_selection.*
 
 class SelectionActivity : AppCompatActivity() {
 
-    private lateinit var db: FirebaseFirestore
-    private val chairs = listOf(
-        "Дизайн и КДР",
-        "Ин.яз. и Переводческое дело",
-        "Информационные системы",
-        "МО, История и СР",
-        "ОПДЭТ и ПО",
-        "Соц.-пед. дисциплины",
-        "Туризм, НВП и ФкС",
-        "Учет и Управление",
-        "Финансы",
-        "Экология и БЖиЗОС",
-        "Юриспруденция"
-    )
+    private val db = Firebase.firestore
     // Groups will be loaded when user selects a chair from chairSpinner
     private var groups = listOf<String>()
-    private var classItems = listOf<ClassItem>()
     private var selectedChair: String? = null
     private var selectedGroup: String? = null
     private var selectedGroupIsBlinking = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        db = Firebase.firestore
 
         setContentView(R.layout.activity_group_selection)
         setSupportActionBar(toolbar)

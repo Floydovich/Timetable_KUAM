@@ -1,34 +1,27 @@
 package com.it_club.timetable_kuam
 
 import android.app.Activity
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.*
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.it_club.timetable_kuam.adapters.DaysAdapter
+import com.it_club.timetable_kuam.helpers.createNotificationChannel
+import com.it_club.timetable_kuam.helpers.notifyChanges
 import com.it_club.timetable_kuam.model.ClassItem
 import com.it_club.timetable_kuam.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var db: FirebaseFirestore
+    private val db = Firebase.firestore
     private lateinit var sp: SharedPreferences
-    private lateinit var registration: ListenerRegistration
     private var chair: String? = null
     private var group: String? = null
     private var isBlinking: Boolean = false
@@ -38,9 +31,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        createNotificationChannel()
+        createNotificationChannel(
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
 
-        db = Firebase.firestore
         sp = getSharedPreferences(USER_FILE, MODE)
 
         chair = sp.getString(CHAIR_NAME, chair)
@@ -54,23 +47,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_main)
-    }
-
-    private fun createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = CHANNEL_ID
-            val descriptionText = "Notifications for the timetable updates"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
-            // Register the channel with the system
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
     }
 
     private fun moveToSelectionActivity() {
@@ -110,14 +86,8 @@ class MainActivity : AppCompatActivity() {
         title = group
     }
 
-    private fun querySubCollection(): Query {
-        return db.collection(chair!!)
-            .document(group!!)
-            .collection(FIRST_HALF)
-    }
-
     private fun getTimetable() {
-        registration = querySubCollection()
+        db.collection("$chair/$group/$FIRST_HALF")
             .whereEqualTo("week_id", currentWeek)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
@@ -126,40 +96,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (snapshots != null) {
-                    timetable = snapshots.toObjects(ClassItem::class.java)
-
-                    fillTimetable(timetable)
-
-                    val days = listOf("Понедельник", "Вторник", "Среда", "Четверг", "Пятница")
-
-                    for (classItem in snapshots.documentChanges) {
-                        when (classItem.type) {
-                            DocumentChange.Type.MODIFIED -> {
-                                val day = days[classItem.newIndex / 6]
-                                Log.d(TAG, "New index: ${classItem.newIndex}")
-                                val classId = classItem.newIndex % 6 + 1
-                                val name = classItem.document["name"]
-
-                                val text = "$day, $classId пара - ${if (name == "") "Окно" else name}"
-
-                                val notificationId = createID()
-                                Log.d(TAG, "Notification ID: $notificationId")
-
-                                val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-                                    .setSmallIcon(R.drawable.ic_baseline_update_24)
-                                    .setContentTitle("Изменение в расписании")
-                                    .setContentText(text)
-                                    .setStyle(NotificationCompat.BigTextStyle()
-                                        .bigText(text))
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-                                // notificationId is a unique int for each notification that you must define
-                                NotificationManagerCompat.from(this)
-                                    .notify(notificationId, builder.build())
-                            }
-                            else -> {}  // do nothing if the document didn't change
-                        }
-                    }
+                    fillTimetable(snapshots.toObjects(ClassItem::class.java))
+                    notifyChanges(this, "Изменение в расписании", snapshots.documentChanges)
                 }
             }
     }
@@ -232,14 +170,7 @@ class MainActivity : AppCompatActivity() {
         outState.putInt(CURRENT_WEEK, currentWeek)
     }
 
-    override fun onStop() {
-        super.onStop()
-        // Detach DB real-time changes listener when the app is no longer active
-        registration.remove()
-    }
-
     companion object {
         const val TAG = "MainActivity"
-        const val CHANNEL_ID = "timetable_kuam.notification_update"
     }
 }
