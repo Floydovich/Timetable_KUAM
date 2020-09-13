@@ -16,7 +16,6 @@ import kotlinx.android.synthetic.main.content_group_selection.*
 class SelectionActivity : AppCompatActivity() {
 
     private val db = Firebase.firestore
-    // Groups will be loaded when user selects a chair from chairSpinner
     private var groups = listOf<String>()
     private var chair: String? = null
     private var group: String? = null
@@ -32,8 +31,7 @@ class SelectionActivity : AppCompatActivity() {
     }
 
     private fun initSpinners() {
-        spinnerChair.item = chairs
-
+        spinnerChair.item = CHAIRS
         spinnerGroup.setOnEmptySpinnerClickListener {
             if (spinnerGroup.isClickable)
                 spinnerGroup.errorText = "Выберите кафедру"
@@ -42,9 +40,7 @@ class SelectionActivity : AppCompatActivity() {
         }
 
         spinnerChair.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
-
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -53,24 +49,21 @@ class SelectionActivity : AppCompatActivity() {
             ) {
                 if (spinnerChair.errorText == "Выберите кафедру")
                     spinnerChair.errorText = ""
-
                 // Prevent selecting a group before they are loaded from the DB
-                spinnerGroup.apply {
-                    isClickable = false
-                    floatingLabelText = "Загружается список групп"
-                    showFloatingLabel()
-                }
+                spinnerGroup.isClickable = false
+                spinnerGroup.floatingLabelText = "Загружается список групп"
+                spinnerGroup.showFloatingLabel()
+                chair = CHAIRS[position]
 
-                chair = chairs[position]
-
-                db.collection(chair!!).get()
+                db.collection(chair!!)
+                    .get()
                     .addOnSuccessListener { result ->
-                        groups = result.documents.map { it.id }
-                        spinnerGroup.apply {
-                            item = groups
-                            hideFloatingLabel()
-                            isClickable = true
+                        groups = result.documents.map { documentSnapshot ->
+                            documentSnapshot.id
                         }
+                        spinnerGroup.item = groups
+                        spinnerGroup.hideFloatingLabel()
+                        spinnerGroup.isClickable = true
                     }
                     .addOnFailureListener { exception ->
                         // QUESTION: It works without connection. DB is saved in cache?
@@ -80,9 +73,7 @@ class SelectionActivity : AppCompatActivity() {
         }
 
         spinnerGroup.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
-
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -90,12 +81,9 @@ class SelectionActivity : AppCompatActivity() {
                 id: Long
             ) {
                 group = groups[position]
-
                 spinnerChair.errorText = ""
-                spinnerGroup.apply {
-                    hideFloatingLabel()  // selecting a group floats text again
-                    errorText = ""
-                }
+                spinnerGroup.hideFloatingLabel()  // selecting a group floats text again
+                spinnerGroup.errorText = ""
             }
         }
     }
@@ -103,20 +91,12 @@ class SelectionActivity : AppCompatActivity() {
     private fun initButton() {
         button.setOnClickListener {
             when {
-                chair == null -> {
-                    spinnerChair.errorText = "Выберите кафедру"
-                }
-                group == null -> {
-                    spinnerGroup.errorText = "Выберите группу"
-                }
+                chair == null -> spinnerChair.errorText = "Выберите кафедру"
+                group == null -> spinnerGroup.errorText = "Выберите группу"
                 else -> {
                     val intent = Intent(this, MainActivity::class.java)
-
-                    intent.apply {
-                        putExtra(CHAIR_NAME, chair)
-                        putExtra(GROUP_NAME, group)
-                    }
-
+                    intent.putExtra(CHAIR_NAME, chair)
+                    intent.putExtra(GROUP_NAME, group)
                     setResult(Activity.RESULT_OK, intent)
                     finish()
                 }

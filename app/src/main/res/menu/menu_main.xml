@@ -7,14 +7,8 @@
         android:title="Сменить группу" />
 
     <item
-        android:id="@+id/switchToWeek1"
-        android:title="I"
-        android:visible="false"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/switchToWeek2"
-        android:title="II"
+        android:id="@+id/switchWeeks"
+        android:title="Неделя 1"
         android:visible="false"
         app:showAsAction="always" />
 

@@ -1,6 +1,5 @@
 package com.it_club.timetable_kuam.utils
 
-import java.text.SimpleDateFormat
 import java.util.*
 
 private val timePairs = listOf(
@@ -22,5 +21,3 @@ fun onToday(): Int {
     val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2
     return if (today < 5) today else 0
 }
-
-fun createID() = SimpleDateFormat("ddHHmmss", Locale.US).format(Date()).toInt()

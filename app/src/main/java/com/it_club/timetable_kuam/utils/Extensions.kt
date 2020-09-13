@@ -15,7 +15,7 @@ fun ViewGroup.inflate(layoutRes: Int, attachToRoot: Boolean = false): View {
 fun FirebaseFirestore.timetableForTerm(
     chair: String,
     group: String,
-    term: String = FIRST_HALF
+    term: String = TERM_1
 ): CollectionReference {
     return collection("$chair/$group/$term")
 }

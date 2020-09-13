@@ -8,12 +8,14 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.it_club.timetable_kuam.adapters.DaysAdapter
-import com.it_club.timetable_kuam.helpers.createNotificationChannel
-import com.it_club.timetable_kuam.helpers.notifyChanges
+import com.it_club.timetable_kuam.helpers.*
 import com.it_club.timetable_kuam.model.ClassItem
 import com.it_club.timetable_kuam.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,7 +23,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val db = Firebase.firestore
-    private lateinit var sp: SharedPreferences
+    private var dbListener: ListenerRegistration? = null
+    private lateinit var sharedPreferences: SharedPreferences
     private var chair: String? = null
     private var group: String? = null
     private var isBlinking: Boolean = false
@@ -31,21 +34,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         createNotificationChannel(
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        )
 
-        sp = getSharedPreferences(USER_FILE, MODE)
+        sharedPreferences = getSharedPreferences(USER_FILE, MODE)
 
-        chair = sp.getString(CHAIR_NAME, chair)
-        group = sp.getString(GROUP_NAME, group)
-        isBlinking = sp.getBoolean(IS_BLINKING, isBlinking)
+        chair = sharedPreferences.getString(CHAIR_NAME, chair)
+        group = sharedPreferences.getString(GROUP_NAME, group)
+        isBlinking = sharedPreferences.getBoolean(IS_BLINKING, isBlinking)
 
         currentWeek = savedInstanceState?.getInt(CURRENT_WEEK) ?: currentWeek
 
-        if (chair == null && group == null) {
+        if (chair == null && group == null)
             moveToSelectionActivity()
-        }
 
         setContentView(R.layout.activity_main)
+        title = group
     }
 
     private fun moveToSelectionActivity() {
@@ -57,57 +61,50 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == SELECTION_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                group = data?.getStringExtra(GROUP_NAME)
-                chair = data?.getStringExtra(CHAIR_NAME)
+        if (requestCode == SELECTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            group = data?.getStringExtra(GROUP_NAME)
+            chair = data?.getStringExtra(CHAIR_NAME)
 
-                // Set the week to 0 due to a bug of switching a blinking group with II enabled
-                // to a non-blinking group
-                currentWeek = 0
+            // Reset the current week on switching to non-blinking group from
+            // blinking with the timetable opened on the second week
+            currentWeek = 0
 
-                // Check if the group is blinking immediately after coming from Selection
-                // activity
-                db.collection(chair!!)
-                    .document(group!!)
-                    .get()
-                    .addOnSuccessListener { result ->
-                        isBlinking = result["blinking"] as Boolean
+            // Check if the group is blinking after coming from Selection activity
+            db.collection(chair!!)
+                .document(group!!)
+                .get()
+                .addOnSuccessListener { result ->
+                    isBlinking = result["blinking"] as Boolean
 
-                        // Schedule the save to sharedPrefs when the blinking fieild is got to
-                        // avoid saving false for blinking
-                        sp.edit().apply {
-                            putString(CHAIR_NAME, chair)
-                            putString(GROUP_NAME, group)
-                            putBoolean(IS_BLINKING, isBlinking)
-                            apply()
-                        }
+                    saveGroupPreferences(sharedPreferences, chair!!, group!!, isBlinking)
 
-                        // Refresh the app bar to show I and II when the group is changed to a blinking one
-                        invalidateOptionsMenu()
-                    }
-                    .addOnFailureListener { exception ->
-                        Log.e(TAG, "Error on getting blinking field: $exception.")
-                    }
-            }
+                    // Refresh the app bar to show I and II when the group is changed to a blinking one
+                    invalidateOptionsMenu()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "Error on getting blinking field: $exception.")
+                }
+
+            startDbListener()
+            title = group
         }
     }
 
     override fun onStart() {
         super.onStart()
-        // Start the registration listener every time the user opens the app from the background.
-        if (chair != null && group != null) {
-            getTimetable()
-            title = group
-        }
+        // Do not start listener if the app is opened for the first time on a new device
+        if (chair != null && group != null)
+            // Avoid a view blinking when the listener starting every time on coming from the background
+            if (dbListener == null)
+                startDbListener()
     }
 
-    private fun getTimetable() {
+    private fun startDbListener() {
         /*
         Call Firestore DB to get a timetable with a current week id. Also this method is called
         when the user changes the group or when they changes the week.
          */
-        db.timetableForTerm(chair!!, group!!)
+        dbListener = db.timetableForTerm(chair!!, group!!)
             .whereEqualTo("week_id", currentWeek)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
@@ -116,12 +113,26 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (snapshots != null) {
-                    fillTimetable(snapshots.toObjects(ClassItem::class.java))
+                    val newTimetable = snapshots.toObjects(ClassItem::class.java)
+                    fillTimetable(newTimetable)
 
                     // Check the documentChanges list and send notifications for a changed document
-                    notifyChanges(this,
-                        "Изменение в расписании",
-                        snapshots.documentChanges)
+                    for (docChange in snapshots.documentChanges) {
+                        when (docChange.type) {
+                            DocumentChange.Type.MODIFIED -> {
+                                val day = days[docChange.newIndex / 6]
+                                val classId = docChange.newIndex % 6 + 1
+                                val name: String = docChange.document["name"] as String
+                                val place: String = docChange.document["place"] as String
+
+                                val text = createNotificationText(day, classId, name, place)
+                                val builder = buildNotification(this, CHANNEL_NAME, text)
+
+                                NotificationManagerCompat.from(this)
+                                    .notify(createID(), builder.build())                            }
+                            else -> {}
+                        }
+                    }
                 }
             }
     }
@@ -146,16 +157,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         if (isBlinking) {
-            val item1 = menu?.findItem(R.id.switchToWeek1)
-            val item2 = menu?.findItem(R.id.switchToWeek2)
+            val item = menu?.findItem(R.id.switchWeeks)
 
-            item1?.isVisible = true
-            item2?.isVisible = true
+            if (item != null) {
+                item.isVisible = true
 
-            if (currentWeek == 0) {
-                item1?.isEnabled = false
-            } else {
-                item2?.isEnabled = false
+                if (currentWeek == 0)
+                    item.title = "Неделя 1"
+                else
+                    item.title = "Неделя 2"
             }
         }
 
@@ -173,15 +183,9 @@ class MainActivity : AppCompatActivity() {
                 moveToSelectionActivity()
                 true
             }
-            R.id.switchToWeek1 -> {
-                currentWeek = 0
-                getTimetable()
-                invalidateOptionsMenu()
-                true
-            }
-            R.id.switchToWeek2 -> {
-                currentWeek = 1
-                getTimetable()
+            R.id.switchWeeks -> {
+                currentWeek = if (currentWeek == 0) 1 else 0
+                startDbListener()
                 invalidateOptionsMenu()
                 true
             }

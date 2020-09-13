@@ -8,17 +8,20 @@ const val MODE = Context.MODE_PRIVATE
 const val CHAIR_NAME = "CHAIR_NAME"
 const val GROUP_NAME = "GROUP_NAME"
 const val IS_BLINKING = "IS_BLINKING"
-const val FIRST_HALF = "Расписание-1"
-const val SECOND_HALF = "Расписание-2"
+const val TERM_1 = "Первый семестр"
+const val TERM_2 = "Второй семестр"
 const val CURRENT_WEEK = "CURRENT_WEEK"
 
 const val ARG_TIMETABLE = "ARG_TIMETABLE"
 
 const val SELECTION_REQUEST_CODE = 0
 
+// Turn these constants into strings resources
 const val CHANNEL_ID = "timetable_kuam.notification_update"
+const val CHANNEL_NAME = "Изменение в расписании"
+const val CHANNEL_DESCRIPTION = "Notifications for the timetable updates"
 
-val chairs = listOf(
+val CHAIRS = listOf(
     "Дизайн и КДР",
     "Ин.яз. и Переводческое дело",
     "Информационные системы",
