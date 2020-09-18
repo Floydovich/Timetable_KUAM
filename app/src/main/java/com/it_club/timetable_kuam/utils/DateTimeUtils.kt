@@ -2,16 +2,16 @@ package com.it_club.timetable_kuam.utils
 
 import java.util.*
 
-private val timePairs = listOf(
-    Pair("08:00", "09:10"),
-    Pair("09:20", "10:30"),
-    Pair("10:40", "11:50"),
-    Pair("12:10", "13:20"),
-    Pair("13:30", "14:40"),
-    Pair("14:50", "16:00")
-)
-
 val days = listOf("Понедельник", "Вторник", "Среда", "Четверг", "Пятница")
+
+private val timePairs = listOf(
+    Pair("08:00", "08:50"),
+    Pair("09:00", "09:50"),
+    Pair("10:00", "10:50"),
+    Pair("11:10", "12:00"),
+    Pair("12:10", "13:00"),
+    Pair("13:10", "14:00")
+)
 
 fun getStartTime(id: Int) = timePairs[id].first
 
