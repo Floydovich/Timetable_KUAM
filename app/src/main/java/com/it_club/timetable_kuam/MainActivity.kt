@@ -74,7 +74,10 @@ class MainActivity : AppCompatActivity() {
                 .document(group!!)
                 .get()
                 .addOnSuccessListener { result ->
-                    isBlinking = result["blinking"] as Boolean
+                    // Check is blinking only for "cc" groups
+                    if ("сс" in group!!) {
+                        isBlinking = result["blinking"] as Boolean
+                    }
 
                     saveGroupPreferences(sharedPreferences, chair!!, group!!, isBlinking)
 
