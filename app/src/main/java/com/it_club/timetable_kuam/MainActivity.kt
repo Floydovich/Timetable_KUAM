@@ -23,8 +23,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val db = Firebase.firestore
-    private var dbListener: ListenerRegistration? = null
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var dbListener: ListenerRegistration
+    private val sharedPreferences by lazy { getSharedPreferences(USER_FILE, MODE) }
     private var chair: String? = null
     private var group: String? = null
     private var isBlinking: Boolean = false
@@ -36,8 +36,6 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel(
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         )
-
-        sharedPreferences = getSharedPreferences(USER_FILE, MODE)
 
         chair = sharedPreferences.getString(CHAIR_NAME, chair)
         group = sharedPreferences.getString(GROUP_NAME, group)
@@ -97,9 +95,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         // Do not start listener if the app is opened for the first time on a new device
         if (chair != null && group != null)
-            // Avoid a view blinking when the listener starting every time on coming from the background
-            if (dbListener == null)
-                startDbListener()
+            startDbListener()
     }
 
     private fun startDbListener() {
