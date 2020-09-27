@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val db = Firebase.firestore
-    private lateinit var dbListener: ListenerRegistration
+    private var dbListener: ListenerRegistration? = null
     private val sharedPreferences by lazy { getSharedPreferences(USER_FILE, MODE) }
     private var chair: String? = null
     private var group: String? = null
@@ -40,10 +40,9 @@ class MainActivity : AppCompatActivity() {
         chair = sharedPreferences.getString(CHAIR_NAME, chair)
         group = sharedPreferences.getString(GROUP_NAME, group)
         isBlinking = sharedPreferences.getBoolean(IS_BLINKING, isBlinking)
-
         currentWeek = savedInstanceState?.getInt(CURRENT_WEEK) ?: currentWeek
 
-        if (chair == null && group == null)
+        if (group == null)
             moveToSelectionActivity()
 
         setContentView(R.layout.activity_main)
@@ -94,14 +93,14 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         // Do not start listener if the app is opened for the first time on a new device
-        if (chair != null && group != null)
+        if (group != null)
             startDbListener()
     }
 
     private fun startDbListener() {
         /*
-        Call Firestore DB to get a timetable with a current week id. Also this method is called
-        when the user changes the group or when they changes the week.
+        Start listening to the Firestore DB changes.
+        This method should only be called after getting chair and group values.
          */
         dbListener = db.timetableForTerm(chair!!, group!!)
             .whereEqualTo("week_id", currentWeek)
