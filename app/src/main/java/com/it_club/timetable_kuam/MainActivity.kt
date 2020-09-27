@@ -1,16 +1,13 @@
 package com.it_club.timetable_kuam
 
 import android.app.Activity
-import android.app.NotificationManager
 import android.content.*
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationManagerCompat
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,9 +19,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val db = Firebase.firestore
-    private lateinit var dbListener: ListenerRegistration
     private val sharedPreferences by lazy { getSharedPreferences(USER_FILE, MODE) }
+    private val db = Firebase.firestore
+    private var dbListener: ListenerRegistration? = null
     private var chair: String? = null
     private var group: String? = null
     private var isBlinking: Boolean = false
@@ -33,14 +30,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        createNotificationChannel(
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        )
-
         chair = sharedPreferences.getString(CHAIR_NAME, chair)
         group = sharedPreferences.getString(GROUP_NAME, group)
         isBlinking = sharedPreferences.getBoolean(IS_BLINKING, isBlinking)
-
         currentWeek = savedInstanceState?.getInt(CURRENT_WEEK) ?: currentWeek
 
         if (chair == null && group == null)
@@ -63,8 +55,7 @@ class MainActivity : AppCompatActivity() {
             group = data?.getStringExtra(GROUP_NAME)
             chair = data?.getStringExtra(CHAIR_NAME)
 
-            // Reset the current week on switching to non-blinking group from
-            // blinking with the timetable opened on the second week
+            // Reset from 2 on switching from a blinking to a non-blinking group
             currentWeek = 0
 
             // Check if the group is blinking after coming from Selection activity
@@ -73,12 +64,9 @@ class MainActivity : AppCompatActivity() {
                 .get()
                 .addOnSuccessListener { result ->
                     // Check is blinking only for "cc" groups
-                    if ("сс" in group!!) {
+                    if ("сс" in group!!)
                         isBlinking = result["blinking"] as Boolean
-                    }
-
                     saveGroupPreferences(sharedPreferences, chair!!, group!!, isBlinking)
-
                     // Refresh the app bar to show I and II when the group is changed to a blinking one
                     invalidateOptionsMenu()
                 }
@@ -112,26 +100,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (snapshots != null) {
-                    val newTimetable = snapshots.toObjects(ClassItem::class.java)
-                    fillTimetable(newTimetable)
-
-                    // Check the documentChanges list and send notifications for a changed document
-                    for (docChange in snapshots.documentChanges) {
-                        when (docChange.type) {
-                            DocumentChange.Type.MODIFIED -> {
-                                val day = days[docChange.newIndex / 6]
-                                val classId = docChange.newIndex % 6 + 1
-                                val name: String = docChange.document["name"] as String
-                                val place: String = docChange.document["place"] as String
-
-                                val text = createNotificationText(day, classId, name, place)
-                                val builder = buildNotification(this, CHANNEL_NAME, text)
-
-                                NotificationManagerCompat.from(this)
-                                    .notify(createID(), builder.build())                            }
-                            else -> {}
-                        }
-                    }
+                    val timetable = snapshots.toObjects(ClassItem::class.java)
+                    fillTimetable(timetable)
                 }
             }
     }
@@ -195,6 +165,11 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(CURRENT_WEEK, currentWeek)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dbListener?.remove()
     }
 
     companion object {
