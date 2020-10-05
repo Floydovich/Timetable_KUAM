@@ -95,8 +95,8 @@ class SelectionActivity : AppCompatActivity() {
                 group == null -> spinnerGroup.errorText = "Выберите группу"
                 else -> {
                     val intent = Intent(this, MainActivity::class.java)
-                    intent.putExtra(CHAIR_NAME, chair)
-                    intent.putExtra(GROUP_NAME, group)
+                    intent.putExtra(CHAIR, chair)
+                    intent.putExtra(GROUP, group)
                     setResult(Activity.RESULT_OK, intent)
                     finish()
                 }

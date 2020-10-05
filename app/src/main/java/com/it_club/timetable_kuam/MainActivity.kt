@@ -11,6 +11,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.it_club.timetable_kuam.adapters.DaysAdapter
 import com.it_club.timetable_kuam.helpers.*
 import com.it_club.timetable_kuam.model.ClassItem
@@ -20,26 +21,36 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val sharedPreferences by lazy { getSharedPreferences(USER_FILE, MODE) }
+    private val firebaseMessaging = FirebaseMessaging.getInstance()
     private val db = Firebase.firestore
     private var dbListener: ListenerRegistration? = null
     private var chair: String? = null
     private var group: String? = null
     private var isBlinking: Boolean = false
+    private var topic: String? = null
     private var currentWeek: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        chair = sharedPreferences.getString(CHAIR_NAME, chair)
-        group = sharedPreferences.getString(GROUP_NAME, group)
+        chair = sharedPreferences.getString(CHAIR, chair)
+        group = sharedPreferences.getString(GROUP, group)
         isBlinking = sharedPreferences.getBoolean(IS_BLINKING, isBlinking)
+        topic = sharedPreferences.getString(TOPIC, topic)
         currentWeek = savedInstanceState?.getInt(CURRENT_WEEK) ?: currentWeek
 
-        if (chair == null && group == null)
+        if (group == null)
             moveToSelectionActivity()
 
         setContentView(R.layout.activity_main)
         title = group
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Do not start listener if the app is opened for the first time on a new device
+        if (group != null)
+            startDbListener()
     }
 
     private fun moveToSelectionActivity() {
@@ -52,38 +63,37 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == SELECTION_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            group = data?.getStringExtra(GROUP_NAME)
-            chair = data?.getStringExtra(CHAIR_NAME)
-
-            // Reset from 2 on switching from a blinking to a non-blinking group
+            // Reset from 1 to 0 on switching from a blinking to a non-blinking group
             currentWeek = 0
+            group = data?.getStringExtra(GROUP)
+            chair = data?.getStringExtra(CHAIR)
 
-            // Check if the group is blinking after coming from Selection activity
-            db.collection(chair!!)
-                .document(group!!)
-                .get()
-                .addOnSuccessListener { result ->
-                    // Check is blinking only for "cc" groups
-                    if ("сс" in group!!)
+            if (topic != null)
+                unsubscribeFromMessages(firebaseMessaging, topic!!)
+
+            topic = transliterateGroupToTopic(group!!)
+            subscribeToMessages(firebaseMessaging, topic!!)
+
+            // Only the "cc" groups could be blinking and some of them are not
+            if ("сс" in group!!) {
+                db.collection(chair!!)
+                    .document(group!!)
+                    .get()
+                    .addOnSuccessListener { result ->
                         isBlinking = result["blinking"] as Boolean
-                    saveGroupPreferences(sharedPreferences, chair!!, group!!, isBlinking)
-                    // Refresh the app bar to show I and II when the group is changed to a blinking one
-                    invalidateOptionsMenu()
-                }
-                .addOnFailureListener { exception ->
-                    Log.e(TAG, "Error on getting blinking field: $exception.")
-                }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e(TAG, "Error on getting blinking field: $exception.")
+                    }
+            } else {
+                isBlinking = false
+            }
 
+            saveGroupPreferences(sharedPreferences, chair!!, group!!, isBlinking, topic!!)
             startDbListener()
+            invalidateOptionsMenu()
             title = group
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        // Do not start listener if the app is opened for the first time on a new device
-        if (chair != null && group != null)
-            startDbListener()
     }
 
     private fun startDbListener() {
@@ -125,17 +135,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val weekButton = menu?.findItem(R.id.switchWeeks)
+
         if (isBlinking) {
-            val item = menu?.findItem(R.id.switchWeeks)
-
-            if (item != null) {
-                item.isVisible = true
-
-                if (currentWeek == 0)
-                    item.title = "Неделя 1"
-                else
-                    item.title = "Неделя 2"
-            }
+            weekButton?.isVisible = true
+            weekButton?.title = "Неделя ${currentWeek + 1}"
+        } else {
+            weekButton?.isVisible = false
         }
 
         return super.onPrepareOptionsMenu(menu)
