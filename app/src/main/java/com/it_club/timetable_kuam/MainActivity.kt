@@ -119,7 +119,6 @@ class MainActivity : AppCompatActivity() {
     private fun fillTimetable(timetable: List<ClassItem>) {
         viewPager.adapter = DaysAdapter(timetable, this)
         viewPager.offscreenPageLimit = 4
-        // Set smoothScroll to false to remove the setting animation when the app is opened
         viewPager.setCurrentItem(onToday(), false)
 
         TabLayoutMediator(tabs, viewPager) { tab, position ->
@@ -175,6 +174,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+        // Stop listening for the timetable updates in the Firestore database
         dbListener?.remove()
     }
 
