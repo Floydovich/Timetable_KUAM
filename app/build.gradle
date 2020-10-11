@@ -8,7 +8,7 @@ android {
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId 'com.it_club.timetable_kuam'
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -43,8 +43,9 @@ dependencies {
 
     // Firebase packages
     // Analytics requires API >= 16
-//    implementation 'com.google.firebase:firebase-analytics:17.4.4'
+    implementation 'com.google.firebase:firebase-analytics:17.4.4'
     implementation 'com.google.firebase:firebase-firestore-ktx:21.5.0'
+    implementation 'com.google.firebase:firebase-messaging:20.2.4'
 
     // Group selection
     implementation 'com.github.chivorns:smartmaterialspinner:1.1.6'
